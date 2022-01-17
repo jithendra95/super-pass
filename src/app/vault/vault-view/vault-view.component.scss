@@ -1,0 +1,43 @@
+@import '../../../theme.scss';
+@import "~@angular/material/theming";
+.card {
+    width: 200px;
+    min-height: 150px;
+    margin: 15px;
+    position: relative;
+}
+
+.add-card{
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    :hover{
+        cursor: pointer;
+    }
+}
+.vault-container{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.action-buttons{
+    position: absolute;
+    display: inline-block;
+    bottom: 0;
+    right: 0;
+    cursor: pointer;
+
+    mat-icon{
+        margin: 10px;
+        &:hover{
+            color: mat-color($dark-primary) !important;
+        }
+    }
+
+   
+}
+
+

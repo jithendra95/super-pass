@@ -1,0 +1,33 @@
+mat-sidenav {
+  margin: 16px;
+  width: 200px;
+  border-right: none;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: left;
+
+  button{
+    width: 100%;
+    text-align: left;
+  }
+}
+
+.content {
+  height: calc(100vh - 98px);
+  border-radius: 10px;
+  margin: 16px;
+  margin-left: 32px;
+  font-size: 2rem;
+  color: lightgray;
+}
+
+mat-sidenav-container {
+  height: calc(100vh - 65px);
+}
+
+@import '../../../theme.scss';
+@import "~@angular/material/theming";
+
+.active{
+  background-color: mat-color($dark-primary) !important;
+}
