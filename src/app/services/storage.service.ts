@@ -7,7 +7,7 @@ export class StorageService {
   constructor() {}
 
   save(item: any, entity: string): void {
-    localStorage.setItem('vaultList', JSON.stringify(item));
+    localStorage.setItem(entity, JSON.stringify(item));
   }
 
   read(entity: string): any | null {

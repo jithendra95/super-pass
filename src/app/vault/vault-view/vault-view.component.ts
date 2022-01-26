@@ -35,9 +35,9 @@ export class VaultViewComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (typeof result !== 'undefined') {
         if (typeof result.id !== 'undefined') {
-          this.vaultState.updateVault(result, result.id);
+          this.vaultState.update(result, result.id);
         } else {
-          this.vaultState.addVault(result);
+          this.vaultState.add(result);
         }
         this.vault = { name: '', subTitle: '', description: '' };
       }
@@ -51,7 +51,7 @@ export class VaultViewComponent implements OnInit {
   }
 
   delete(index: number) {
-    const vaultList = this.vaultState.getVaults();
+    const vaultList = this.vaultState.getList();
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '450px',
       data: {
@@ -63,7 +63,7 @@ export class VaultViewComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if(result){
-        this.vaultState.deleteVault(index);
+        this.vaultState.delete(index);
       }
     })
   }
