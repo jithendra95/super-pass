@@ -37,6 +37,7 @@ export class VaultViewComponent implements OnInit {
         if (typeof result.id !== 'undefined') {
           this.vaultState.update(result, result.id);
         } else {
+          result.id = this.vaultState.getList().length;
           this.vaultState.add(result);
         }
         this.vault = { name: '', subTitle: '', description: '' };

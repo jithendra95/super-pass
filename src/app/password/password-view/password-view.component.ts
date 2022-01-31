@@ -4,11 +4,12 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { Subscription } from 'rxjs';
 import { PasswordState } from 'src/app/states/password.state';
 import { VaultState } from 'src/app/states/vault.state';
 import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confirm-dialog.component';
 import { Vault } from 'src/app/vault/vault-view/vault-view.component';
-import { Password } from '../password.interface';
+import { Password, PasswordType } from '../password.interface';
 
 @Component({
   selector: 'app-password-view',
@@ -17,10 +18,25 @@ import { Password } from '../password.interface';
 })
 export class PasswordViewComponent implements OnInit {
   selected?: Password;
-  pass: Password = { name: '', username: '', password: '', vault: '' };
-  constructor(public dialog: MatDialog, public passwordState: PasswordState, public vaultState: VaultState) {}
+  passwordType = PasswordType;
+  pass: Password = { name: '', username: '', password: '', vault: '', type: PasswordType.Account };
+
+  subs: Subscription[] = [];
+  constructor(public dialog: MatDialog, public passwordState: PasswordState, public vaultState: VaultState) {
+    this.subs.push(this.passwordState.getList$().subscribe(list=>{
+       if(typeof list !== undefined && list.length > 0 && this.selected === undefined){
+         this.selected = list[0];
+       }
+    }))
+  }
 
   ngOnInit(): void {}
+
+  ngOnDestroy(): void{
+    this.subs.forEach(sub=>{
+      sub.unsubscribe();
+    })
+  }
 
   select(item: Password, index: number) {
     this.selected = item;
@@ -29,18 +45,22 @@ export class PasswordViewComponent implements OnInit {
 
   openDialog(): void {
     const dialogRef = this.dialog.open(PasswordCreateDialog, {
-      width: '450px',
+      width: '750px',
       data: {password: this.pass, vaults: this.vaultState.getList()} 
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (typeof result !== 'undefined') {
         if (typeof result.id !== 'undefined') {
+          result.updatedDate = new Date();
           this.passwordState.update(result, result.id);
         } else {
+          result.createdDate = new Date();
+          result.updatedDate = new Date();
+          result.id = this.passwordState.getList().length;
           this.passwordState.add(result);
         }
-        this.pass = { name: '', username: '', password: '', vault: '' };
+        this.pass = { name: '', username: '', password: '', vault: '', type: PasswordType.Account };
       }
     });
   }
@@ -73,6 +93,8 @@ export class PasswordViewComponent implements OnInit {
   templateUrl: 'password-create.dialog.html',
 })
 export class PasswordCreateDialog {
+  passwordType = PasswordType;
+  passwordTypeKeys = Object.keys(this.passwordType).filter(key => !isNaN(Number(key)));
   constructor(
     public dialogRef: MatDialogRef<PasswordCreateDialog>,
     @Inject(MAT_DIALOG_DATA) public data: {password:Password; vaults: Vault[]}
@@ -87,4 +109,9 @@ export class PasswordCreateDialog {
   onOkClick(): void {
     this.dialogRef.close(this.data.password);
   }
+
+  getPasswordDesc(index: string): string{
+    return PasswordType[parseInt(index)]
+  }
+  
 }

@@ -13,7 +13,7 @@ export class VaultState extends BaseState<Vault> {
 
   get(id: string): Vault | undefined {
     return this.getList().find((obj) => {
-      return obj['id'] === id;
+      return obj['id'] == id;
     });
   }
 }
