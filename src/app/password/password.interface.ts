@@ -26,5 +26,6 @@ export interface Password{
     cardType?: CreditCardType,
     vault: string;
     createdDate?: Date,
-    updatedDate?: Date
+    updatedDate?: Date,
+    favourite? : boolean
 }

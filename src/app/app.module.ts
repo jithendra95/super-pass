@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { VaultModule } from './vault/vault.module';
 import { UiElementsModule } from './ui-elements/ui-elements.module';
 import { PasswordModule } from './password/password.module';
+import { ClipboardModule } from 'ngx-clipboard';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { PasswordModule } from './password/password.module';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    ClipboardModule,
     UiElementsModule,
     VaultModule,
     PasswordModule

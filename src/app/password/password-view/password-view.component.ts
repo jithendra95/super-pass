@@ -4,7 +4,9 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { ClipboardService } from 'ngx-clipboard';
 import { Subscription } from 'rxjs';
+import { ToastService } from 'src/app/services/toast.service';
 import { PasswordState } from 'src/app/states/password.state';
 import { VaultState } from 'src/app/states/vault.state';
 import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confirm-dialog.component';
@@ -19,23 +21,41 @@ import { Password, PasswordType } from '../password.interface';
 export class PasswordViewComponent implements OnInit {
   selected?: Password;
   passwordType = PasswordType;
-  pass: Password = { name: '', username: '', password: '', vault: '', type: PasswordType.Account };
+  pass: Password = {
+    name: '',
+    username: '',
+    password: '',
+    vault: '',
+    type: PasswordType.Account,
+  };
 
   subs: Subscription[] = [];
-  constructor(public dialog: MatDialog, public passwordState: PasswordState, public vaultState: VaultState) {
-    this.subs.push(this.passwordState.getList$().subscribe(list=>{
-       if(typeof list !== undefined && list.length > 0 && this.selected === undefined){
-         this.selected = list[0];
-       }
-    }))
+  constructor(
+    public dialog: MatDialog,
+    public passwordState: PasswordState,
+    public vaultState: VaultState,
+    private clipboardApi: ClipboardService,
+    private toastService: ToastService
+  ) {
+    this.subs.push(
+      this.passwordState.getList$().subscribe((list) => {
+        if (
+          typeof list !== undefined &&
+          list.length > 0 &&
+          this.selected === undefined
+        ) {
+          this.selected = list[0];
+        }
+      })
+    );
   }
 
   ngOnInit(): void {}
 
-  ngOnDestroy(): void{
-    this.subs.forEach(sub=>{
+  ngOnDestroy(): void {
+    this.subs.forEach((sub) => {
       sub.unsubscribe();
-    })
+    });
   }
 
   select(item: Password, index: number) {
@@ -46,7 +66,8 @@ export class PasswordViewComponent implements OnInit {
   openDialog(): void {
     const dialogRef = this.dialog.open(PasswordCreateDialog, {
       width: '750px',
-      data: {password: this.pass, vaults: this.vaultState.getList()} 
+      panelClass: 'dialog',
+      data: { password: this.pass, vaults: this.vaultState.getList() },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -60,7 +81,13 @@ export class PasswordViewComponent implements OnInit {
           result.id = this.passwordState.getList().length;
           this.passwordState.add(result);
         }
-        this.pass = { name: '', username: '', password: '', vault: '', type: PasswordType.Account };
+        this.pass = {
+          name: '',
+          username: '',
+          password: '',
+          vault: '',
+          type: PasswordType.Account,
+        };
       }
     });
   }
@@ -71,20 +98,34 @@ export class PasswordViewComponent implements OnInit {
   }
 
   delete() {
-    const passList = this.passwordState.getList();
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '450px',
       data: {
         title: 'Delete Password',
-        message: `Are you sure you want to delete password ${this.selected!.name} ?`,
+        message: `Are you sure you want to delete password ${
+          this.selected!.name
+        } ?`,
       },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.passwordState.delete(parseInt(this.selected!.id!));
+        let id = this.selected!.id!;
+        this.selected = undefined;
+        this.passwordState.delete(parseInt(id));
       }
     });
+  }
+
+  favourite(): void{
+    this.selected!.favourite = true;
+    this.passwordState.update(this.selected!, parseInt(this.selected!.id!));
+  }
+  copyToClipBoard(value: string| undefined): void {
+    if(typeof value !== 'undefined'){
+      this.clipboardApi.copyFromContent(value);
+      this.toastService.showToast('Copied Successfully','');
+    }
   }
 }
 
@@ -94,10 +135,13 @@ export class PasswordViewComponent implements OnInit {
 })
 export class PasswordCreateDialog {
   passwordType = PasswordType;
-  passwordTypeKeys = Object.keys(this.passwordType).filter(key => !isNaN(Number(key)));
+  passwordTypeKeys = Object.keys(this.passwordType).filter(
+    (key) => !isNaN(Number(key))
+  );
   constructor(
     public dialogRef: MatDialogRef<PasswordCreateDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: {password:Password; vaults: Vault[]}
+    @Inject(MAT_DIALOG_DATA)
+    public data: { password: Password; vaults: Vault[] }
   ) {
     dialogRef.disableClose = true;
   }
@@ -110,8 +154,7 @@ export class PasswordCreateDialog {
     this.dialogRef.close(this.data.password);
   }
 
-  getPasswordDesc(index: string): string{
-    return PasswordType[parseInt(index)]
+  getPasswordDesc(index: string): string {
+    return PasswordType[parseInt(index)];
   }
-  
 }
