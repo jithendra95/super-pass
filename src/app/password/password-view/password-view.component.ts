@@ -6,6 +6,7 @@ import {
 } from '@angular/material/dialog';
 import { ClipboardService } from 'ngx-clipboard';
 import { Subscription } from 'rxjs';
+import { CryptoService } from 'src/app/services/crypto.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { PasswordState } from 'src/app/states/password.state';
 import { VaultState } from 'src/app/states/vault.state';
@@ -29,13 +30,16 @@ export class PasswordViewComponent implements OnInit {
     type: PasswordType.Account,
   };
 
+  passwordList: Password[] = [];
+  searchText = '';
   subs: Subscription[] = [];
   constructor(
     public dialog: MatDialog,
     public passwordState: PasswordState,
     public vaultState: VaultState,
     private clipboardApi: ClipboardService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private crypt: CryptoService
   ) {
     this.subs.push(
       this.passwordState.getList$().subscribe((list) => {
@@ -44,6 +48,7 @@ export class PasswordViewComponent implements OnInit {
           list.length > 0 &&
           this.selected === undefined
         ) {
+          this.passwordList = list;
           this.selected = list[0];
         }
       })
@@ -64,6 +69,10 @@ export class PasswordViewComponent implements OnInit {
   }
 
   openDialog(): void {
+    this.pass.password = this.crypt.decryptData(this.pass.password);
+    this.pass.bankPin = this.crypt.decryptData(this.pass.bankPin);
+    this.pass.cvc = this.crypt.decryptData(this.pass.cvc);
+    
     const dialogRef = this.dialog.open(PasswordCreateDialog, {
       width: '750px',
       panelClass: 'dialog',
@@ -74,6 +83,10 @@ export class PasswordViewComponent implements OnInit {
       if (typeof result !== 'undefined') {
         if (typeof result.id !== 'undefined') {
           result.updatedDate = new Date();
+          result.password = this.crypt.encryptData(result.password);
+          result.bankPin = this.crypt.encryptData(result.bankPin);
+          result.cvc = this.crypt.encryptData(result.cvc);
+
           this.passwordState.update(result, result.id);
         } else {
           result.createdDate = new Date();
@@ -117,14 +130,44 @@ export class PasswordViewComponent implements OnInit {
     });
   }
 
-  favourite(): void{
-    this.selected!.favourite = true;
-    this.passwordState.update(this.selected!, parseInt(this.selected!.id!));
+  search(): void {
+    if (this.searchText !== '') {
+      this.passwordList = this.passwordList.filter((password) => {
+        return password.name
+          .toLocaleLowerCase()
+          .includes(this.searchText.toLocaleLowerCase());
+      });
+      this.selected = this.passwordList[0];
+    } else {
+      this.reloadPasswordList();
+    }
   }
-  copyToClipBoard(value: string| undefined): void {
-    if(typeof value !== 'undefined'){
-      this.clipboardApi.copyFromContent(value);
-      this.toastService.showToast('Copied Successfully','');
+
+  changeSearch(): void {
+    if (this.searchText == '') {
+      this.reloadPasswordList();
+    }
+  }
+
+  reloadPasswordList(): void {
+    this.passwordList = this.passwordState.getList();
+  }
+
+  favourite(): void {
+    this.selected!.favourite =  !this.selected!.favourite;
+    this.passwordState.update(this.selected!, parseInt(this.selected!.id!));
+
+    if(this.selected!.favourite){
+      this.toastService.showToast('Added to favourites', '');
+    }else{
+      this.toastService.showToast('Removed from favourites', '');
+    }
+  }
+
+  copyToClipBoard(value: string | undefined): void {
+    if (typeof value !== 'undefined') {
+      this.clipboardApi.copyFromContent(this.crypt.decryptData(value));
+      this.toastService.showToast('Copied Value', '');
     }
   }
 }

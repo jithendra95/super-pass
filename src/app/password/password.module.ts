@@ -4,6 +4,7 @@ import { PasswordCreateDialog, PasswordViewComponent } from './password-view/pas
 import { MaterialModule } from '../shared/material.module';
 import { PasswordRoutingModule } from './password-routing.module';
 import { FormsModule } from '@angular/forms';
+import { SharedModule } from '../shared/shared.module';
 
 
 
@@ -15,6 +16,7 @@ import { FormsModule } from '@angular/forms';
     CommonModule,
     MaterialModule,
     FormsModule,
+    SharedModule,
     PasswordRoutingModule
   ],
   exports:[PasswordViewComponent]
