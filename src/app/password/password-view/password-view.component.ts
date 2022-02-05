@@ -72,7 +72,7 @@ export class PasswordViewComponent implements OnInit {
     this.pass.password = this.crypt.decryptData(this.pass.password);
     this.pass.bankPin = this.crypt.decryptData(this.pass.bankPin);
     this.pass.cvc = this.crypt.decryptData(this.pass.cvc);
-    
+
     const dialogRef = this.dialog.open(PasswordCreateDialog, {
       width: '750px',
       panelClass: 'dialog',
@@ -81,17 +81,18 @@ export class PasswordViewComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (typeof result !== 'undefined') {
+        result.password = this.crypt.encryptData(result.password);
+        result.bankPin = this.crypt.encryptData(result.bankPin);
+        result.cvc = this.crypt.encryptData(result.cvc);
         if (typeof result.id !== 'undefined') {
           result.updatedDate = new Date();
-          result.password = this.crypt.encryptData(result.password);
-          result.bankPin = this.crypt.encryptData(result.bankPin);
-          result.cvc = this.crypt.encryptData(result.cvc);
 
           this.passwordState.update(result, result.id);
         } else {
           result.createdDate = new Date();
           result.updatedDate = new Date();
           result.id = this.passwordState.getList().length;
+
           this.passwordState.add(result);
         }
         this.pass = {
@@ -154,12 +155,12 @@ export class PasswordViewComponent implements OnInit {
   }
 
   favourite(): void {
-    this.selected!.favourite =  !this.selected!.favourite;
+    this.selected!.favourite = !this.selected!.favourite;
     this.passwordState.update(this.selected!, parseInt(this.selected!.id!));
 
-    if(this.selected!.favourite){
+    if (this.selected!.favourite) {
       this.toastService.showToast('Added to favourites', '');
-    }else{
+    } else {
       this.toastService.showToast('Removed from favourites', '');
     }
   }
@@ -175,12 +176,18 @@ export class PasswordViewComponent implements OnInit {
 @Component({
   selector: 'password-create-dialog',
   templateUrl: 'password-create.dialog.html',
+  styleUrls: ['./password-create.dialog.scss'],
 })
 export class PasswordCreateDialog {
   passwordType = PasswordType;
   passwordTypeKeys = Object.keys(this.passwordType).filter(
     (key) => !isNaN(Number(key))
   );
+
+  showPassword = false;
+  showPin = false;
+  showCvc = false;
+
   constructor(
     public dialogRef: MatDialogRef<PasswordCreateDialog>,
     @Inject(MAT_DIALOG_DATA)
@@ -199,5 +206,19 @@ export class PasswordCreateDialog {
 
   getPasswordDesc(index: string): string {
     return PasswordType[parseInt(index)];
+  }
+
+  showHidePassword(value: string) {
+    switch (value) {
+      case 'password':
+        this.showPassword = !this.showPassword;
+        break;
+      case 'pin':
+        this.showPin = !this.showPin;
+        break;
+      case 'cvc':
+        this.showCvc = !this.showCvc;
+        break;
+    }
   }
 }

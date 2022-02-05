@@ -8,7 +8,7 @@ export class CryptoService {
   constructor() {}
 
   encryptData(data: string | undefined): string {
-    if (typeof data === 'undefined') {
+    if (typeof data === 'undefined' || data == '') {
       return '';
     }
     try {
@@ -19,7 +19,7 @@ export class CryptoService {
   }
 
   decryptData(data: string | undefined): string {
-    if (typeof data === 'undefined') {
+    if (typeof data === 'undefined' || data == '') {
       return '';
     }
 
