@@ -52,3 +52,21 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   line-height: 14px;
   min-width: auto;
 }
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: transparent; 
+  border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: mat-color($dark-accent); 
+  opacity: 0.8;
+  border-radius: 10px;
+}

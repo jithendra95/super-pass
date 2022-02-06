@@ -1,6 +1,6 @@
 mat-sidenav {
   margin: 16px;
-  width: 200px;
+  width: 250px;
   border-right: none;
   border-radius: 10px;
   padding: 16px;
@@ -9,6 +9,10 @@ mat-sidenav {
   button{
     width: 100%;
     text-align: left;
+  }
+
+  mat-icon{
+    padding-right: 15px;
   }
 }
 

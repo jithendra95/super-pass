@@ -4,6 +4,7 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { ClipboardService } from 'ngx-clipboard';
 import { Subscription } from 'rxjs';
 import { CryptoService } from 'src/app/services/crypto.service';
@@ -33,34 +34,93 @@ export class PasswordViewComponent implements OnInit {
   passwordList: Password[] = [];
   searchText = '';
   subs: Subscription[] = [];
+
+  routerSubs?: Subscription;
+  passwordSubs?: Subscription;
+
   constructor(
     public dialog: MatDialog,
     public passwordState: PasswordState,
     public vaultState: VaultState,
     private clipboardApi: ClipboardService,
     private toastService: ToastService,
-    private crypt: CryptoService
+    private crypt: CryptoService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.subs.push(
-      this.passwordState.getList$().subscribe((list) => {
-        if (
-          typeof list !== undefined &&
-          list.length > 0 &&
-          this.selected === undefined
-        ) {
-          this.passwordList = list;
-          this.selected = list[0];
+      this.router.events.subscribe((e: any) => {
+        // If it is a NavigationEnd event re-initalise the component
+        if (e instanceof NavigationEnd) {
+          this.initialize();
         }
       })
     );
   }
 
+  initialize(): void {
+    if (this.routerSubs) {
+      this.routerSubs.unsubscribe();
+    }
+
+    if (this.passwordSubs) {
+      this.passwordSubs.unsubscribe();
+    }
+
+    this.selected = undefined;
+
+    this.routerSubs = this.route.queryParams.subscribe((params) => {
+      let type = params['type'];
+
+      this.passwordSubs = this.passwordState.getList$().subscribe((list) => {
+        if (typeof list !== undefined && list.length > 0) {
+          switch (type) {
+            case 'favourite':
+              this.passwordList = list.filter((password) => {
+                return password.favourite == true;
+              });
+              break;
+            case 'account':
+              this.passwordList = list.filter((password) => {
+                return password.type == PasswordType.Account;
+              });
+              break;
+            case 'credit':
+              this.passwordList = list.filter((password) => {
+                return password.type == PasswordType.CreditCard;
+              });
+              break;
+            case 'bank':
+              this.passwordList = list.filter((password) => {
+                return password.type == PasswordType.Bank;
+              });
+              break;
+            default:
+              this.passwordList = list;
+          }
+
+          if (this.selected === undefined && this.passwordList.length > 0)
+            this.selected = this.passwordList[0];
+        } else {
+          this.passwordList = [];
+        }
+      });
+    });
+  }
   ngOnInit(): void {}
 
   ngOnDestroy(): void {
     this.subs.forEach((sub) => {
       sub.unsubscribe();
     });
+
+    if (this.routerSubs) {
+      this.routerSubs.unsubscribe();
+    }
+
+    if (this.passwordSubs) {
+      this.passwordSubs.unsubscribe();
+    }
   }
 
   select(item: Password, index: number) {
@@ -91,8 +151,9 @@ export class PasswordViewComponent implements OnInit {
         } else {
           result.createdDate = new Date();
           result.updatedDate = new Date();
-          result.id = this.passwordState.getList().length;
+          result.id = new Date().valueOf().toString(36) + Math.random().toString(36).substr(2);//Date.now().toString(36).slice(2);
 
+          console.log(result.id);
           this.passwordState.add(result);
         }
         this.pass = {
@@ -170,6 +231,16 @@ export class PasswordViewComponent implements OnInit {
       this.clipboardApi.copyFromContent(this.crypt.decryptData(value));
       this.toastService.showToast('Copied Value', '');
     }
+  }
+
+  copyAccount(): void {
+    let bankAccount = '';
+    bankAccount += `Account No: ${this.selected!.bankAccountNo} \n`;
+    bankAccount += `Name : ${this.selected!.username} \n`;
+    bankAccount += `Branch : ${this.selected!.bankBranch} \n`;
+
+    this.clipboardApi.copyFromContent(bankAccount);
+    this.toastService.showToast('Bank Account Details', '');
   }
 }
 
