@@ -8,6 +8,11 @@ import { VaultModule } from './vault/vault.module';
 import { UiElementsModule } from './ui-elements/ui-elements.module';
 import { PasswordModule } from './password/password.module';
 import { ClipboardModule } from 'ngx-clipboard';
+import { environment } from 'src/environments/environment';
+import { AngularFireModule } from "@angular/fire/compat";
+import { AngularFirestoreModule } from "@angular/fire/compat/firestore";
+import { LoginModule } from './login/login.module';
+import { AuthGuard } from './auth-guard';
 
 @NgModule({
   declarations: [
@@ -16,13 +21,16 @@ import { ClipboardModule } from 'ngx-clipboard';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFirestoreModule,
     BrowserAnimationsModule,
     ClipboardModule,
     UiElementsModule,
     VaultModule,
-    PasswordModule
+    PasswordModule,
+    LoginModule
   ],
-  providers: [],
+  providers: [AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

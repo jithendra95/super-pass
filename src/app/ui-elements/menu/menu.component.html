@@ -1,4 +1,8 @@
-<mat-toolbar class="mat-elevation-z8" [color]="'primary'">
+<mat-toolbar
+  class="mat-elevation-z8"
+  [color]="'primary'"
+  *ngIf="isLoggedIn$ | async"
+>
   <button
     mat-icon-button
     *ngIf="sidenav.mode === 'over'"
@@ -11,7 +15,7 @@
   Super Pass
 </mat-toolbar>
 
-<mat-sidenav-container>
+<mat-sidenav-container *ngIf="isLoggedIn$ | async">
   <mat-sidenav #sidenav="matSidenav">
     <button
       mat-button
@@ -45,7 +49,7 @@
 
     <mat-divider></mat-divider>
 
-    <mat-expansion-panel class="mat-elevation-z0" [expanded]='true'>
+    <mat-expansion-panel class="mat-elevation-z0" [expanded]="true">
       <mat-expansion-panel-header class="nav-head" [expandedHeight]="'48px'">
         <mat-panel-title class="nav-link">
           <span class="nav-link-text">Categories</span>
@@ -103,3 +107,12 @@
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
+
+<mat-sidenav-container >
+  <div *ngIf="!(isLoggedIn$ | async)">
+    <div class="mat-elevation-z8">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</mat-sidenav-container>
+

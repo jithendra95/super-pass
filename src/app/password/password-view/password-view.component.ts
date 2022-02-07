@@ -151,7 +151,7 @@ export class PasswordViewComponent implements OnInit {
         } else {
           result.createdDate = new Date();
           result.updatedDate = new Date();
-          result.id = new Date().valueOf().toString(36) + Math.random().toString(36).substr(2);//Date.now().toString(36).slice(2);
+          result.id = new Date().valueOf().toString(36) + Math.random().toString(36).substr(2);
 
           console.log(result.id);
           this.passwordState.add(result);
