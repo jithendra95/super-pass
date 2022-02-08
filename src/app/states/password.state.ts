@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Password } from '../password/password.interface';
+import { Password } from '../models/password.interface';
 import { StorageService } from '../services/storage.service';
 import { BaseState } from './base.state';
 

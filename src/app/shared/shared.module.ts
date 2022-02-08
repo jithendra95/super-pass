@@ -1,14 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from './material.module';
 import { CreditCardPipe } from '../pipes/credit-card.pipe';
+import { UiElementsModule } from '../ui-elements/ui-elements.module';
 
 @NgModule({
-  declarations: [
-    CreditCardPipe
+  declarations: [CreditCardPipe],
+  imports: [CommonModule],
+  exports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CreditCardPipe,
+    MaterialModule,
+    UiElementsModule,
   ],
-  imports: [CommonModule, MaterialModule],
-  exports: [CommonModule, FormsModule, CreditCardPipe],
 })
 export class SharedModule {}

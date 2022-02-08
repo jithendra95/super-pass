@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Vault } from '../models/vault.interface';
 import { StorageService } from '../services/storage.service';
-import { Vault } from '../vault/vault-view/vault-view.component';
 import { BaseState } from './base.state';
 
 @Injectable({

@@ -1,0 +1,11 @@
+<app-menu *ngIf="isLoggedIn">
+  <router-outlet></router-outlet>
+</app-menu>
+
+<mat-sidenav-container *ngIf="!isLoggedIn">
+  <div>
+    <div class="mat-elevation-z8">
+     <app-login></app-login>
+    </div>
+  </div>
+</mat-sidenav-container>

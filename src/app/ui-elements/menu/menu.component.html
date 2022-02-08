@@ -1,21 +1,20 @@
 <mat-toolbar
   class="mat-elevation-z8"
   [color]="'primary'"
-  *ngIf="isLoggedIn$ | async"
 >
   <button
     mat-icon-button
-    *ngIf="sidenav.mode === 'over'"
-    (click)="sidenav.toggle()"
+    *ngIf="sidenav?.mode === 'over'"
+    (click)="sidenav?.toggle()"
   >
-    <mat-icon *ngIf="!sidenav.opened"> menu </mat-icon>
-    <mat-icon *ngIf="sidenav.opened"> close </mat-icon>
+    <mat-icon *ngIf="!sidenav?.opened"> menu </mat-icon>
+    <mat-icon *ngIf="sidenav?.opened"> close </mat-icon>
   </button>
 
   Super Pass
 </mat-toolbar>
 
-<mat-sidenav-container *ngIf="isLoggedIn$ | async">
+<mat-sidenav-container>
   <mat-sidenav #sidenav="matSidenav">
     <button
       mat-button
@@ -108,11 +107,4 @@
   </mat-sidenav-content>
 </mat-sidenav-container>
 
-<mat-sidenav-container >
-  <div *ngIf="!(isLoggedIn$ | async)">
-    <div class="mat-elevation-z8">
-      <ng-content></ng-content>
-    </div>
-  </div>
-</mat-sidenav-container>
 

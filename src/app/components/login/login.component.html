@@ -1,0 +1,59 @@
+<div class="login-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Super Pass</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-tab-group>
+        <mat-tab label="Login">
+          <div class="input-container">
+            <mat-form-field appearance="fill">
+              <mat-label>Email</mat-label>
+              <input matInput [(ngModel)]="email" />
+            </mat-form-field>
+
+            <app-password-input
+              [password]="password"
+              [label]="'Password'"
+              [fullWidth]="true"
+            ></app-password-input>
+
+            <button mat-raised-button color="primary" style="width: 100%">
+              Login
+            </button>
+          </div>
+        </mat-tab>
+        <mat-tab label="Sign Up">
+          <mat-form-field appearance="fill">
+            <mat-label>Name</mat-label>
+            <input matInput [(ngModel)]="user.name" />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="small-field">
+            <mat-label>Email</mat-label>
+            <input matInput [(ngModel)]="user.email" />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="small-field">
+            <mat-label>Contact No</mat-label>
+            <input matInput [(ngModel)]="user.contact" />
+          </mat-form-field>
+
+          <app-password-input
+            [(password)]="newPassword"
+            [label]="'Password'"
+          ></app-password-input>
+
+          <app-password-input
+            [(password)]="confirmPassword"
+            [label]="'Confirm Password'"
+          ></app-password-input>
+
+          <button mat-raised-button color="primary" style="width: 100%" (click)="signUp()">
+            Sign Up
+          </button>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

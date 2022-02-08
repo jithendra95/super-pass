@@ -7,13 +7,13 @@ import {
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { ClipboardService } from 'ngx-clipboard';
 import { Subscription } from 'rxjs';
+import { Password, PasswordType } from 'src/app/models/password.interface';
+import { Vault } from 'src/app/models/vault.interface';
 import { CryptoService } from 'src/app/services/crypto.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { PasswordState } from 'src/app/states/password.state';
 import { VaultState } from 'src/app/states/vault.state';
 import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confirm-dialog.component';
-import { Vault } from 'src/app/vault/vault-view/vault-view.component';
-import { Password, PasswordType } from '../password.interface';
 
 @Component({
   selector: 'app-password-view',
@@ -279,17 +279,4 @@ export class PasswordCreateDialog {
     return PasswordType[parseInt(index)];
   }
 
-  showHidePassword(value: string) {
-    switch (value) {
-      case 'password':
-        this.showPassword = !this.showPassword;
-        break;
-      case 'pin':
-        this.showPin = !this.showPin;
-        break;
-      case 'cvc':
-        this.showCvc = !this.showCvc;
-        break;
-    }
-  }
 }

@@ -4,9 +4,10 @@
 
 export const environment = {
   production: false,
-  firebaseConfig : {
+ firebaseConfig : {
     apiKey: "AIzaSyDbri132lyAAp2lXZvLK3T0OG10a8_QbbE",
     authDomain: "super-pass-64e2b.firebaseapp.com",
+    databaseURL: "https://super-pass-64e2b-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "super-pass-64e2b",
     storageBucket: "super-pass-64e2b.appspot.com",
     messagingSenderId: "42402014999",

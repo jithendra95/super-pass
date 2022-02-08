@@ -7,30 +7,30 @@ import { AuthenticationService } from 'src/app/services/authentication.service';
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
-  styleUrls: ['./menu.component.scss']
+  styleUrls: ['./menu.component.scss'],
 })
 export class MenuComponent implements OnInit {
-
   @ViewChild(MatSidenav)
-  sidenav!: MatSidenav;
-  isLoggedIn$: Observable<any>;
-  constructor(private observer: BreakpointObserver, private auth: AuthenticationService) {
-     this.isLoggedIn$ = auth.isLoggedIn$();
-   }
-
-  ngOnInit(): void {
+  sidenav?: MatSidenav;
+  
+  constructor(
+    private observer: BreakpointObserver
+  ) {
   }
+
+  ngOnInit(): void {}
 
   ngAfterViewInit() {
     this.observer.observe(['(max-width: 800px)']).subscribe((res) => {
-      if (res.matches) {
-        this.sidenav.mode = 'over';
-        this.sidenav.close();
-      } else {
-        this.sidenav.mode = 'side';
-        this.sidenav.open();
+      if (this.sidenav) {
+        if (res.matches) {
+          this.sidenav.mode = 'over';
+          this.sidenav.close();
+        } else {
+          this.sidenav.mode = 'side';
+          this.sidenav.open();
+        }
       }
     });
   }
-
 }

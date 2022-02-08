@@ -4,15 +4,11 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { Vault } from 'src/app/models/vault.interface';
 import { VaultState } from 'src/app/states/vault.state';
 import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confirm-dialog.component';
 
-export interface Vault {
-  id?: string;
-  name: string;
-  subTitle: string;
-  description: string;
-}
+
 
 @Component({
   selector: 'app-vault-view',

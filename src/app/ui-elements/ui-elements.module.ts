@@ -1,19 +1,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MenuComponent } from './menu/menu.component';
 import { MaterialModule } from '../shared/material.module';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
-import { AppRoutingModule } from '../app-routing.module';
+import { PasswordInputComponent } from './password-input/password-input.component';
+import { FormsModule } from '@angular/forms';
 
 
 
 @NgModule({
-  declarations: [MenuComponent, ConfirmDialogComponent],
+  declarations: [ConfirmDialogComponent, PasswordInputComponent],
   imports: [
     CommonModule,
-    AppRoutingModule,
+    FormsModule,
     MaterialModule
   ],
-  exports: [MenuComponent, ConfirmDialogComponent]
+  exports: [ConfirmDialogComponent, PasswordInputComponent]
 })
 export class UiElementsModule { }

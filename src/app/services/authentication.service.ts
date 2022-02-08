@@ -1,21 +1,24 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { first, Observable } from 'rxjs';
+import { User } from '../models/user.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
   userData: Observable<any>;
-  constructor(private angularFireAuth: AngularFireAuth) {
+  constructor(private angularFireAuth: AngularFireAuth, private database: AngularFireDatabase ) {
     this.userData = angularFireAuth.authState;
   }
 
   /* Sign up */
-  SignUp(email: string, password: string) {
+  SignUp(user: User, password: string) {
     this.angularFireAuth
-      .createUserWithEmailAndPassword(email, password)
+      .createUserWithEmailAndPassword(user.email, password)
       .then((res) => {
+        this.database.object('user').set(user);
         console.log('You are Successfully signed up!', res);
       })
       .catch((error) => {
