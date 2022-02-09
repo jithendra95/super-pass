@@ -3,13 +3,18 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { first, Observable } from 'rxjs';
 import { User } from '../models/user.interface';
+import { UserState } from '../states/user.state';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
   userData: Observable<any>;
-  constructor(private angularFireAuth: AngularFireAuth, private database: AngularFireDatabase ) {
+  constructor(
+    private angularFireAuth: AngularFireAuth,
+    private database: AngularFireDatabase,
+    private userState: UserState
+  ) {
     this.userData = angularFireAuth.authState;
   }
 
@@ -18,7 +23,10 @@ export class AuthenticationService {
     this.angularFireAuth
       .createUserWithEmailAndPassword(user.email, password)
       .then((res) => {
-        this.database.object('user').set(user);
+        if(res.user)
+          user.uid = res.user.uid;
+
+        this.userState.addWithId(user.uid, user);
         console.log('You are Successfully signed up!', res);
       })
       .catch((error) => {
@@ -31,7 +39,9 @@ export class AuthenticationService {
     this.angularFireAuth
       .signInWithEmailAndPassword(email, password)
       .then((res) => {
-        console.log("You're in!");
+        if(res.user)
+         this.userState.read(res.user.uid);
+         console.log("You're in!");
       })
       .catch((err) => {
         console.log('Something went wrong:', err.message);
@@ -40,11 +50,11 @@ export class AuthenticationService {
 
   isLoggedIn() {
     return this.angularFireAuth.authState.pipe(first()).toPromise();
-   }
+  }
 
-   isLoggedIn$(){
-     return this.angularFireAuth.authState;
-   }
+  isLoggedIn$() {
+    return this.angularFireAuth.authState;
+  }
 
   /* Sign out */
   SignOut() {

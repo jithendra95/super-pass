@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
+import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { Password } from '../models/password.interface';
-import { StorageService } from '../services/storage.service';
-import { BaseState } from './base.state';
+import {  BaseStateList } from './base.state';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PasswordState extends BaseState<Password> {
+export class PasswordState extends BaseStateList<Password> {
 
-  constructor(private storageService: StorageService) { 
-      super(storageService, 'passwordList');
+  constructor(db: AngularFireDatabase) { 
+      super(db, 'passwordList');
   }
 
 }

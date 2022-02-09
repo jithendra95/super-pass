@@ -34,3 +34,7 @@ mat-sidenav-container {
 .active{
   background-color: mat-color($dark-primary) !important;
 }
+
+.spacer {
+  flex: 1 1 auto;
+}

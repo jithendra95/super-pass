@@ -1,8 +1,10 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Observable } from 'rxjs';
 import { AuthenticationService } from 'src/app/services/authentication.service';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-menu',
@@ -12,11 +14,12 @@ import { AuthenticationService } from 'src/app/services/authentication.service';
 export class MenuComponent implements OnInit {
   @ViewChild(MatSidenav)
   sidenav?: MatSidenav;
-  
+
   constructor(
-    private observer: BreakpointObserver
-  ) {
-  }
+    private observer: BreakpointObserver,
+    private dialog: MatDialog,
+    private auth: AuthenticationService
+  ) {}
 
   ngOnInit(): void {}
 
@@ -30,6 +33,22 @@ export class MenuComponent implements OnInit {
           this.sidenav.mode = 'side';
           this.sidenav.open();
         }
+      }
+    });
+  }
+
+  logout() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '450px',
+      data: {
+        title: 'Logout',
+        message: `Are you sure you want to logout from Super Pass ?`,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.auth.SignOut();
       }
     });
   }

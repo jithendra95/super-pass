@@ -32,6 +32,7 @@ export class PasswordViewComponent implements OnInit {
   };
 
   passwordList: Password[] = [];
+  allValues: Password[] = [];
   searchText = '';
   subs: Subscription[] = [];
 
@@ -74,6 +75,7 @@ export class PasswordViewComponent implements OnInit {
 
       this.passwordSubs = this.passwordState.getList$().subscribe((list) => {
         if (typeof list !== undefined && list.length > 0) {
+          this.allValues = list;
           switch (type) {
             case 'favourite':
               this.passwordList = list.filter((password) => {
@@ -136,7 +138,7 @@ export class PasswordViewComponent implements OnInit {
     const dialogRef = this.dialog.open(PasswordCreateDialog, {
       width: '750px',
       panelClass: 'dialog',
-      data: { password: this.pass, vaults: this.vaultState.getList() },
+      data: { password: this.pass, vaults: this.vaultState.getList$() },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -146,14 +148,10 @@ export class PasswordViewComponent implements OnInit {
         result.cvc = this.crypt.encryptData(result.cvc);
         if (typeof result.id !== 'undefined') {
           result.updatedDate = new Date();
-
           this.passwordState.update(result, result.id);
         } else {
           result.createdDate = new Date();
           result.updatedDate = new Date();
-          result.id = new Date().valueOf().toString(36) + Math.random().toString(36).substr(2);
-
-          console.log(result.id);
           this.passwordState.add(result);
         }
         this.pass = {
@@ -212,7 +210,7 @@ export class PasswordViewComponent implements OnInit {
   }
 
   reloadPasswordList(): void {
-    this.passwordList = this.passwordState.getList();
+    this.passwordList = this.allValues;
   }
 
   favourite(): void {
@@ -278,5 +276,4 @@ export class PasswordCreateDialog {
   getPasswordDesc(index: string): string {
     return PasswordType[parseInt(index)];
   }
-
 }

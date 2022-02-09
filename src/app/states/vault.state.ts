@@ -1,19 +1,20 @@
 import { Injectable } from '@angular/core';
+import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { Vault } from '../models/vault.interface';
-import { StorageService } from '../services/storage.service';
-import { BaseState } from './base.state';
+import { BaseStateList } from './base.state';
 
 @Injectable({
   providedIn: 'root',
 })
-export class VaultState extends BaseState<Vault> {
-  constructor(private storageService: StorageService) {
-    super(storageService, 'vaultList');
+export class VaultState extends BaseStateList<Vault> {
+  constructor(db: AngularFireDatabase) {
+    super(db, 'vaultList');
   }
 
   get(id: string): Vault | undefined {
-    return this.getList().find((obj) => {
-      return obj['id'] == id;
-    });
+    // return this.getList().find((obj) => {
+    //   return obj['id'] == id;
+    // });
+    return undefined;
   }
 }

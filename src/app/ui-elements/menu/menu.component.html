@@ -1,7 +1,4 @@
-<mat-toolbar
-  class="mat-elevation-z8"
-  [color]="'primary'"
->
+<mat-toolbar class="mat-elevation-z8" [color]="'primary'">
   <button
     mat-icon-button
     *ngIf="sidenav?.mode === 'over'"
@@ -11,7 +8,12 @@
     <mat-icon *ngIf="sidenav?.opened"> close </mat-icon>
   </button>
 
-  Super Pass
+  <span>Super Pass</span>
+  <span class="spacer"></span>
+
+  <button mat-icon-button aria-label="Logout from Super Pass" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
 </mat-toolbar>
 
 <mat-sidenav-container>
@@ -106,5 +108,3 @@
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
-
-

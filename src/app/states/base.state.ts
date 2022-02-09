@@ -1,47 +1,66 @@
-import { BehaviorSubject, Observable } from 'rxjs';
-import { StorageService } from '../services/storage.service';
+import { AngularFireDatabase } from '@angular/fire/compat/database';
+import { first, Observable } from 'rxjs';
+
+
 
 export class BaseState<Type> {
-  list: BehaviorSubject<Type[]> = new BehaviorSubject<Type[]>([]);
   entity = '';
-  constructor(private storage: StorageService, entity: string) {
+  constructor(protected db: AngularFireDatabase, entity: string) {
     this.entity = entity;
-    let list = storage.read(entity);
-    if (list !== null) {
-      this.set(list);
-    }
+  }
+
+
+  add(value: Type): void {
+    const dbRef = this.db.database.ref(this.entity);
+    dbRef.push(value);
+  }
+
+  addWithId(id: string | number, value: Type){
+    const dbRef = this.db.database.ref(this.entity);
+    dbRef.child(id as string).set(value);
+  }
+
+  update(value: Type, id: number | string): void {
+    const itemRef = this.db.object(`${this.entity}\ ${id}`);
+    itemRef.update(value);
+  }
+
+  delete(id: number | string): void {
+    const itemRef = this.db.object(`${this.entity}\ ${id}`);
+    itemRef.remove();
+  }
+}
+
+export class BaseStateObject<Type> extends BaseState<Type> {
+  object: Type | null = null;
+  
+  constructor(db: AngularFireDatabase, entity: string) {
+    super(db, entity);
+  }
+
+  read(id: string | number){
+    this.db.object(`${this.entity}\ ${id}`).valueChanges().pipe(first()).subscribe(user=>{
+      this.object = user as Type;
+    });
+  }
+
+  get(): Type | null {
+    return this.object;
+  }
+
+}
+
+
+export class BaseStateList<Type> extends BaseState<Type> {
+  list: Observable<unknown[]> = new Observable<unknown[]>();
+  
+  constructor(db: AngularFireDatabase, entity: string) {
+    super(db, entity);
+    this.list = db.list(this.entity).valueChanges();
   }
 
   getList$(): Observable<Type[]> {
-    return this.list.asObservable();
+    return this.list as Observable<Type[]>;
   }
 
-  getList(): Type[] {
-    return this.list.getValue();
-  }
-
-  add(value: Type): void {
-    const vaultList = this.list.getValue();
-    vaultList.push(value);
-    this.set(vaultList);
-  }
-
-  update(value: Type, index: number): void {
-    const list = this.list.getValue();
-    list[index] = value;
-    this.set(list);
-  }
-
-  delete(index: number): void {
-    const list = this.list.getValue();
-    list.splice(index, 1);
-    this.set(list);
-  }
-
-  
-
-  private set(values: Type[]): void {
-    this.list.next(values);
-    this.storage.save(values, this.entity);
-  }
 }
