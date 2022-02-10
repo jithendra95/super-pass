@@ -7,7 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from 'src/environments/environment';
 import { AngularFireModule } from "@angular/fire/compat";
 import { AngularFireDatabaseModule } from "@angular/fire/compat/database";
-import { AuthGuard } from './auth-guard';
+import { AuthGuard, LoginAuthGuard } from './auth-guard';
 import { MenuComponent } from './ui-elements/menu/menu.component';
 import { SharedModule } from './shared/shared.module';
 import { ConsoleComponent } from './components/console/console.component';
@@ -28,7 +28,7 @@ import { LoginModule } from './components/login/login.module';
     SharedModule,
     LoginModule
   ],
-  providers: [AuthGuard],
+  providers: [AuthGuard, LoginAuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

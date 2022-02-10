@@ -12,6 +12,7 @@ import { Vault } from 'src/app/models/vault.interface';
 import { CryptoService } from 'src/app/services/crypto.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { PasswordState } from 'src/app/states/password.state';
+import { UserState } from 'src/app/states/user.state';
 import { VaultState } from 'src/app/states/vault.state';
 import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confirm-dialog.component';
 
@@ -23,13 +24,7 @@ import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confi
 export class PasswordViewComponent implements OnInit {
   selected?: Password;
   passwordType = PasswordType;
-  pass: Password = {
-    name: '',
-    username: '',
-    password: '',
-    vault: '',
-    type: PasswordType.Account,
-  };
+  pass: Password;
 
   passwordList: Password[] = [];
   allValues: Password[] = [];
@@ -43,12 +38,22 @@ export class PasswordViewComponent implements OnInit {
     public dialog: MatDialog,
     public passwordState: PasswordState,
     public vaultState: VaultState,
+    public userState: UserState,
     private clipboardApi: ClipboardService,
     private toastService: ToastService,
     private crypt: CryptoService,
     private route: ActivatedRoute,
     private router: Router
   ) {
+    this.pass = {
+      name: '',
+      uid: userState.object?.uid!,
+      username: '',
+      password: '',
+      vault: '',
+      type: PasswordType.Account,
+    };
+    
     this.subs.push(
       this.router.events.subscribe((e: any) => {
         // If it is a NavigationEnd event re-initalise the component
@@ -73,7 +78,12 @@ export class PasswordViewComponent implements OnInit {
     this.routerSubs = this.route.queryParams.subscribe((params) => {
       let type = params['type'];
 
-      this.passwordSubs = this.passwordState.getList$().subscribe((list) => {
+      this.passwordSubs = this.passwordState.getList$().subscribe(result=>{
+        let list = result.map(vaults=>{
+                    const $key = vaults.payload.key;
+                    const data = {id: $key, ...(vaults.payload.val() as object)};
+                    return data;
+                  })  as Password[];
         if (typeof list !== undefined && list.length > 0) {
           this.allValues = list;
           switch (type) {
@@ -138,7 +148,7 @@ export class PasswordViewComponent implements OnInit {
     const dialogRef = this.dialog.open(PasswordCreateDialog, {
       width: '750px',
       panelClass: 'dialog',
-      data: { password: this.pass, vaults: this.vaultState.getList$() },
+      data: { password: this.pass, vaults: this.vaultState.getList() },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -156,6 +166,7 @@ export class PasswordViewComponent implements OnInit {
         }
         this.pass = {
           name: '',
+          uid: this.userState.object?.uid!,
           username: '',
           password: '',
           vault: '',
@@ -215,7 +226,7 @@ export class PasswordViewComponent implements OnInit {
 
   favourite(): void {
     this.selected!.favourite = !this.selected!.favourite;
-    this.passwordState.update(this.selected!, parseInt(this.selected!.id!));
+    this.passwordState.update(this.selected!, this.selected!.id!);
 
     if (this.selected!.favourite) {
       this.toastService.showToast('Added to favourites', '');

@@ -9,7 +9,7 @@ import {  BaseStateList } from './base.state';
 export class PasswordState extends BaseStateList<Password> {
 
   constructor(db: AngularFireDatabase) { 
-      super(db, 'passwordList');
+      super(db, 'password');
   }
 
 }

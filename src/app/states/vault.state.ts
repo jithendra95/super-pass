@@ -8,7 +8,7 @@ import { BaseStateList } from './base.state';
 })
 export class VaultState extends BaseStateList<Vault> {
   constructor(db: AngularFireDatabase) {
-    super(db, 'vaultList');
+    super(db, 'vault');
   }
 
   get(id: string): Vault | undefined {

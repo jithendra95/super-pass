@@ -13,12 +13,17 @@
             </mat-form-field>
 
             <app-password-input
-              [password]="password"
+              [(password)]="password"
               [label]="'Password'"
               [fullWidth]="true"
             ></app-password-input>
 
-            <button mat-raised-button color="primary" style="width: 100%">
+            <button
+              mat-raised-button
+              color="primary"
+              style="width: 100%"
+              (click)="signIn()"
+            >
               Login
             </button>
           </div>
@@ -49,11 +54,19 @@
             [label]="'Confirm Password'"
           ></app-password-input>
 
-          <button mat-raised-button color="primary" style="width: 100%" (click)="signUp()">
+          <button
+            mat-raised-button
+            color="primary"
+            style="width: 100%"
+            (click)="signUp()"
+          >
             Sign Up
           </button>
         </mat-tab>
       </mat-tab-group>
     </mat-card-content>
+    <mat-card-footer *ngIf="isLoading">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </mat-card-footer>
   </mat-card>
 </div>

@@ -13,6 +13,7 @@ export enum CreditCardType{
 
 export interface Password{
     id?: string;
+    uid: string;
     name: string;
     type: PasswordType
     username: string;

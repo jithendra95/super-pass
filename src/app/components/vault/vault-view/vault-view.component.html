@@ -5,14 +5,14 @@
     </mat-card-content>
   </mat-card>
 
-  <mat-card class="card" *ngFor="let item of vaultState.getList$() | async; let i = index">
+  <mat-card class="card" *ngFor="let item of vaultState.getList(); let i = index">
     <mat-card-title>{{item.name}}</mat-card-title>
     <mat-card-subtitle>{{item.subTitle}}</mat-card-subtitle>
     <mat-card-content>
       <p>{{item.description   }}</p>
 
       <div class='action-buttons'>
-             <mat-icon (click)='edit(item, i)'>edit</mat-icon>
+             <mat-icon (click)='edit(item)'>edit</mat-icon>
              <mat-icon (click)='delete(item)'>delete</mat-icon>
        </div>
     </mat-card-content>

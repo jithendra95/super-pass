@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
+import { Router } from '@angular/router';
 import { first, Observable } from 'rxjs';
 import { User } from '../models/user.interface';
 import { UserState } from '../states/user.state';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,47 +14,64 @@ export class AuthenticationService {
   userData: Observable<any>;
   constructor(
     private angularFireAuth: AngularFireAuth,
-    private database: AngularFireDatabase,
-    private userState: UserState
+    private userState: UserState,
+    private _router: Router
   ) {
     this.userData = angularFireAuth.authState;
   }
 
   /* Sign up */
   SignUp(user: User, password: string) {
-    this.angularFireAuth
-      .createUserWithEmailAndPassword(user.email, password)
-      .then((res) => {
-        if(res.user)
-          user.uid = res.user.uid;
+    const thisInst = this;
+    return new Promise(function (resolve, reject) {
+      thisInst.angularFireAuth
+        .createUserWithEmailAndPassword(user.email, password)
+        .then((res) => {
+          if (res.user) user.uid = res.user.uid;
 
-        this.userState.addWithId(user.uid, user);
-        console.log('You are Successfully signed up!', res);
-      })
-      .catch((error) => {
-        console.log('Something is wrong:', error.message);
-      });
+          thisInst.userState.addWithId(user.uid, user);
+          thisInst._router.navigate(['/']);
+        })
+        .catch((err) => {
+          reject(err.message);
+        });
+    });
   }
 
   /* Sign in */
-  SignIn(email: string, password: string) {
-    this.angularFireAuth
-      .signInWithEmailAndPassword(email, password)
-      .then((res) => {
-        if(res.user)
-         this.userState.read(res.user.uid);
-         console.log("You're in!");
-      })
-      .catch((err) => {
-        console.log('Something went wrong:', err.message);
-      });
+  SignIn(email: string, password: string): Promise<string> {
+    const thisInst = this;
+    return new Promise(function (resolve, reject) {
+      thisInst.angularFireAuth
+        .signInWithEmailAndPassword(email, password)
+        .then((res) => {
+          if (res.user) thisInst.userState.read(res.user.uid);
+
+          thisInst._router.navigate(['/']);
+          resolve('');
+        })
+        .catch((err) => {
+          reject(err.message);
+        });
+    });
   }
 
   isLoggedIn() {
+    this.angularFireAuth.authState.subscribe((user) => {
+      if (user != null && this.userState.object == null) {
+        this.userState.read(user.uid);
+      }
+    });
     return this.angularFireAuth.authState.pipe(first()).toPromise();
   }
 
   isLoggedIn$() {
+    this.angularFireAuth.authState.subscribe((user) => {
+      if (user != null && this.userState.object == null) {
+        this.userState.read(user.uid);
+      }
+    });
+
     return this.angularFireAuth.authState;
   }
 

@@ -5,10 +5,9 @@ import {
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { Vault } from 'src/app/models/vault.interface';
+import { UserState } from 'src/app/states/user.state';
 import { VaultState } from 'src/app/states/vault.state';
 import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confirm-dialog.component';
-
-
 
 @Component({
   selector: 'app-vault-view',
@@ -16,11 +15,30 @@ import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confi
   styleUrls: ['./vault-view.component.scss'],
 })
 export class VaultViewComponent implements OnInit {
-  vault: Vault = { name: '', subTitle: '', description: '' };
+  vault: Vault;
   vaultList: Vault[] = [];
-  constructor(public dialog: MatDialog, public vaultState: VaultState) {}
+  constructor(
+    public dialog: MatDialog,
+    public vaultState: VaultState,
+    private userState: UserState
+  ) {
+    this.vault = {
+      name: '',
+      subTitle: '',
+      description: '',
+      uid: this.userState.object?.uid!,
+    };
+  }
 
   ngOnInit(): void {}
+
+  ngAfterViewInit(): void{
+    // this.vaultState.getList$().subscribe(vaults=>{
+    //   this.vaultList = vaults.map(e => {
+    //     return { id: e.payload.doc.id, location: e.payload.doc.data()["location"], number: e.payload.doc.data()["phone"], name: e.payload.doc.data()["name"]}
+    //   })
+    // })
+  }
 
   openDialog(): void {
     const dialogRef = this.dialog.open(VaultCreateDialog, {
@@ -33,16 +51,21 @@ export class VaultViewComponent implements OnInit {
         if (typeof result.id !== 'undefined') {
           this.vaultState.update(result, result.id);
         } else {
+          result.uid = this.userState.object?.uid!
           this.vaultState.add(result);
         }
-        this.vault = { name: '', subTitle: '', description: '' };
+        this.vault = {
+          name: '',
+          subTitle: '',
+          description: '',
+          uid: this.userState.object?.uid!,
+        };
       }
     });
   }
 
-  edit(vault: Vault, index: number) {
+  edit(vault: Vault) {
     this.vault = vault;
-    this.vault.id = index.toString();
     this.openDialog();
   }
 
@@ -51,16 +74,15 @@ export class VaultViewComponent implements OnInit {
       width: '450px',
       data: {
         title: 'Delete Vault',
-        message:
-          `Are you sure you want to delete vault ${vault.name} ?`,
+        message: `Are you sure you want to delete vault ${vault.name} ?`,
       },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if(result){
+      if (result) {
         this.vaultState.delete(vault.id!);
       }
-    })
+    });
   }
 }
 
