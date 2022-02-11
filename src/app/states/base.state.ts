@@ -1,5 +1,5 @@
 import { AngularFireDatabase } from '@angular/fire/compat/database';
-import { first, Observable } from 'rxjs';
+import { BehaviorSubject, first, Subscription } from 'rxjs';
 
 export class BaseState<Type> {
   entity = '';
@@ -40,14 +40,22 @@ export class BaseStateObject<Type> extends BaseState<Type> {
     super.addWithId(id, value);
   }
 
-  read(id: string | number) {
-    this.db
-      .object(`${this.entity}/${id}`)
+  read(id: string | number): Promise<boolean> {
+    const thisInst = this;
+    return new Promise(function(resolve, reject){
+      thisInst.db
+      .object(`${thisInst.entity}/${id}`)
       .valueChanges()
       .pipe(first())
       .subscribe((user) => {
-        this.object = user as Type;
+        thisInst.object = user as Type;
+        resolve(true);
       });
+    })
+  }
+
+  unload(): void{
+    this.object = null;
   }
 
   get(): Type | null {
@@ -56,25 +64,36 @@ export class BaseStateObject<Type> extends BaseState<Type> {
 }
 
 export class BaseStateList<Type> extends BaseState<Type> {
-  list: unknown[] = [];
-  listSub;
+  list: BehaviorSubject<unknown[]> = new BehaviorSubject<unknown[]>([]);
+  listSub?: Subscription;
+  uid: string = '';
+
   constructor(db: AngularFireDatabase, entity: string) {
     super(db, entity);
-    this.listSub = db.list(this.entity).snapshotChanges().subscribe(result=>{
-      this.list = result.map(vaults=>{
-        const $key = vaults.payload.key;
-        const data = {id: $key, ...(vaults.payload.val() as object)};
-        return data;
-      });
-    });
   }
-  
+
+  loadList(uid: string | number): void{  
+    this.listSub = this.db
+      .list(this.entity, (ref) => ref.orderByChild('uid').equalTo(uid!))
+      .snapshotChanges()
+      .subscribe((result) => {
+        this.list.next( result.map((vaults) => {
+          const $key = vaults.payload.key;
+          const data = { id: $key, ...(vaults.payload.val() as object) };
+          return data;
+        })) 
+      });
+  }
+
+  unloadList(): void{
+    this.list = new BehaviorSubject<unknown[]>([]);
+  }
 
   getList(): Type[] {
-    return this.list as Type[];
+    return this.list.getValue() as Type[];
   }
 
-  getList$(){
-    return this.db.list(this.entity).snapshotChanges();
+  getList$() {
+    return this.list.asObservable();
   }
 }

@@ -1,17 +1,15 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { Router } from '@angular/router';
 import { first, Observable } from 'rxjs';
 import { User } from '../models/user.interface';
 import { UserState } from '../states/user.state';
-import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
-  userData: Observable<any>;
+  userData: Observable<any> | null;
   constructor(
     private angularFireAuth: AngularFireAuth,
     private userState: UserState,
@@ -29,6 +27,7 @@ export class AuthenticationService {
         .then((res) => {
           if (res.user) user.uid = res.user.uid;
 
+          user.secret = new Date().valueOf().toString(36) + Math.random().toString(36).substr(2);
           thisInst.userState.addWithId(user.uid, user);
           thisInst._router.navigate(['/']);
         })
@@ -76,7 +75,10 @@ export class AuthenticationService {
   }
 
   /* Sign out */
-  SignOut() {
-    this.angularFireAuth.signOut();
+  async SignOut() {
+    this.userState.unload();
+    this.userData = null;
+    await this.angularFireAuth.signOut();
+    this._router.navigate(['/login']);
   }
 }

@@ -34,6 +34,8 @@ export class PasswordViewComponent implements OnInit {
   routerSubs?: Subscription;
   passwordSubs?: Subscription;
 
+  isLoading = true;
+
   constructor(
     public dialog: MatDialog,
     public passwordState: PasswordState,
@@ -47,13 +49,13 @@ export class PasswordViewComponent implements OnInit {
   ) {
     this.pass = {
       name: '',
-      uid: userState.object?.uid!,
+      uid: '',
       username: '',
       password: '',
       vault: '',
       type: PasswordType.Account,
     };
-    
+
     this.subs.push(
       this.router.events.subscribe((e: any) => {
         // If it is a NavigationEnd event re-initalise the component
@@ -78,12 +80,16 @@ export class PasswordViewComponent implements OnInit {
     this.routerSubs = this.route.queryParams.subscribe((params) => {
       let type = params['type'];
 
-      this.passwordSubs = this.passwordState.getList$().subscribe(result=>{
-        let list = result.map(vaults=>{
-                    const $key = vaults.payload.key;
-                    const data = {id: $key, ...(vaults.payload.val() as object)};
-                    return data;
-                  })  as Password[];
+      this.passwordSubs = this.passwordState.getList$().subscribe((result) => {
+        // let list = result.map((vaults) => {
+        //   const $key = vaults.payload.key;
+        //   const data = { id: $key, ...(vaults.payload.val() as object) };
+        //   return data;
+        // }) as Password[];
+
+        let list = result as Password[];
+
+        this.isLoading = false;
         if (typeof list !== undefined && list.length > 0) {
           this.allValues = list;
           switch (type) {
@@ -135,9 +141,8 @@ export class PasswordViewComponent implements OnInit {
     }
   }
 
-  select(item: Password, index: number) {
+  select(item: Password) {
     this.selected = item;
-    this.selected.id = index.toString();
   }
 
   openDialog(): void {
@@ -153,16 +158,19 @@ export class PasswordViewComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (typeof result !== 'undefined') {
-        result.password = this.crypt.encryptData(result.password);
-        result.bankPin = this.crypt.encryptData(result.bankPin);
-        result.cvc = this.crypt.encryptData(result.cvc);
-        if (typeof result.id !== 'undefined') {
-          result.updatedDate = new Date();
-          this.passwordState.update(result, result.id);
+        const pwd = result as Password;
+
+        pwd.password = this.crypt.encryptData(pwd.password);
+        pwd.bankPin = this.crypt.encryptData(pwd.bankPin);
+        pwd.cvc = this.crypt.encryptData(pwd.cvc);
+        if (typeof pwd.id !== 'undefined') {
+          pwd.updatedDate = (new Date()).toString();
+          this.passwordState.update(pwd, pwd.id);
         } else {
-          result.createdDate = new Date();
-          result.updatedDate = new Date();
-          this.passwordState.add(result);
+          pwd.createdDate = (new Date()).toString();
+          pwd.updatedDate = (new Date()).toString();
+          pwd.uid = this.userState.object?.uid!;
+          this.passwordState.add(pwd);
         }
         this.pass = {
           name: '',
@@ -196,7 +204,7 @@ export class PasswordViewComponent implements OnInit {
       if (result) {
         let id = this.selected!.id!;
         this.selected = undefined;
-        this.passwordState.delete(parseInt(id));
+        this.passwordState.delete(id);
       }
     });
   }
@@ -244,6 +252,7 @@ export class PasswordViewComponent implements OnInit {
 
   copyAccount(): void {
     let bankAccount = '';
+    bankAccount += `${this.selected!.name} \n`;
     bankAccount += `Account No: ${this.selected!.bankAccountNo} \n`;
     bankAccount += `Name : ${this.selected!.username} \n`;
     bankAccount += `Branch : ${this.selected!.bankBranch} \n`;

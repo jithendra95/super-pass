@@ -17,6 +17,7 @@ import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confi
 export class VaultViewComponent implements OnInit {
   vault: Vault;
   vaultList: Vault[] = [];
+
   constructor(
     public dialog: MatDialog,
     public vaultState: VaultState,
