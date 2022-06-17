@@ -11,7 +11,7 @@ import { BaseStateObject } from "./base.state";
   
     loaded = false;
     constructor(db: AngularFireDatabase, private loadService: LoaderService) { 
-        super(db, 'User');
+        super(db, 'user');
     }
 
     override async read(id: string | number): Promise<boolean> {

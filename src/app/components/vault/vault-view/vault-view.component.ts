@@ -4,6 +4,7 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { Observable } from 'rxjs';
 import { Vault } from 'src/app/models/vault.interface';
 import { UserState } from 'src/app/states/user.state';
 import { VaultState } from 'src/app/states/vault.state';
@@ -16,7 +17,6 @@ import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confi
 })
 export class VaultViewComponent implements OnInit {
   vault: Vault;
-  vaultList: Vault[] = [];
 
   constructor(
     public dialog: MatDialog,
@@ -33,13 +33,7 @@ export class VaultViewComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  ngAfterViewInit(): void{
-    // this.vaultState.getList$().subscribe(vaults=>{
-    //   this.vaultList = vaults.map(e => {
-    //     return { id: e.payload.doc.id, location: e.payload.doc.data()["location"], number: e.payload.doc.data()["phone"], name: e.payload.doc.data()["name"]}
-    //   })
-    // })
-  }
+  ngAfterViewInit(): void {}
 
   openDialog(): void {
     const dialogRef = this.dialog.open(VaultCreateDialog, {
@@ -52,7 +46,7 @@ export class VaultViewComponent implements OnInit {
         if (typeof result.id !== 'undefined') {
           this.vaultState.update(result, result.id);
         } else {
-          result.uid = this.userState.object?.uid!
+          result.uid = this.userState.object?.uid!;
           this.vaultState.add(result);
         }
         this.vault = {

@@ -1,11 +1,18 @@
-<app-menu *ngIf="isLoggedIn">
+<app-menu *ngIf="isLoggedIn" [menuItems]="menuItems">
   <router-outlet></router-outlet>
 </app-menu>
 
-<mat-sidenav-container *ngIf="!isLoggedIn">
+<mat-sidenav-container *ngIf="!isLoggedIn && !isLoading">
   <div>
     <div class="mat-elevation-z8">
-     <app-login></app-login>
+      <app-login></app-login>
     </div>
   </div>
+</mat-sidenav-container>
+
+<mat-sidenav-container *ngIf="isLoading" style="height: 100vh">
+  <mat-spinner
+    *ngIf="isLoading"
+    [diameter]="100"
+  ></mat-spinner>
 </mat-sidenav-container>

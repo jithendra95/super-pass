@@ -8,10 +8,48 @@ import { AuthenticationService } from 'src/app/services/authentication.service';
 })
 export class ConsoleComponent implements OnInit {
 
+  isLoading = true;
   isLoggedIn: boolean = false;
+  menuItems = [
+    { icon: 'home', label: 'Vaults', link: '/vault', param: '' },
+    { icon: 'person', label: 'All Items', link: '/password', param: 'all' },
+    {
+      icon: 'star',
+      label: 'Favourites',
+      link: '/password',
+      param: 'favourite',
+    },
+    {
+      label: 'Categories',
+      link: '/password',
+      param: 'all',
+      sublist: [
+        {
+          icon: 'person',
+          label: 'Accounts',
+          link: '/password',
+          param: 'account',
+        },
+        {
+          icon: 'credit_card',
+          label: 'Credit Cards',
+          link: '/password',
+          param: 'credit',
+        },
+        {
+          icon: 'account_balance',
+          label: 'Bank Accounts',
+          link: '/password',
+          param: 'bank',
+        },
+      ],
+    },
+    { icon: 'help', label: 'Help', link: '/password', param: 'all' },
+  ];
   constructor(private auth: AuthenticationService) { 
-    auth.isLoggedIn$().subscribe((res) => {
+    this.auth.isLoggedIn$().subscribe((res) => {
       this.isLoggedIn = res !== null;
+      this.isLoading = false;
     })
   }
 

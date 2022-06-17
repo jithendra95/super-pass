@@ -1,5 +1,5 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Observable } from 'rxjs';
@@ -15,6 +15,9 @@ export class MenuComponent implements OnInit {
   @ViewChild(MatSidenav)
   sidenav?: MatSidenav;
 
+  @Input()
+  menuItems:any;
+  
   constructor(
     private observer: BreakpointObserver,
     private dialog: MatDialog,
@@ -24,7 +27,7 @@ export class MenuComponent implements OnInit {
   ngOnInit(): void {}
 
   ngAfterViewInit() {
-    this.observer.observe(['(max-width: 800px)']).subscribe((res) => {
+    this.observer.observe(['(max-width: 1080px)']).subscribe((res) => {
       if (this.sidenav) {
         if (res.matches) {
           this.sidenav.mode = 'over';

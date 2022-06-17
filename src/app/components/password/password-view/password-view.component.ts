@@ -1,9 +1,11 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import {
   MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { MatSidenav } from '@angular/material/sidenav';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { ClipboardService } from 'ngx-clipboard';
 import { Subscription } from 'rxjs';
@@ -36,6 +38,9 @@ export class PasswordViewComponent implements OnInit {
 
   isLoading = true;
 
+  @ViewChild(MatSidenav)
+  sidenav?: MatSidenav;
+
   constructor(
     public dialog: MatDialog,
     public passwordState: PasswordState,
@@ -45,7 +50,8 @@ export class PasswordViewComponent implements OnInit {
     private toastService: ToastService,
     private crypt: CryptoService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private observer: BreakpointObserver,
   ) {
     this.pass = {
       name: '',
@@ -67,26 +73,15 @@ export class PasswordViewComponent implements OnInit {
   }
 
   initialize(): void {
-    if (this.routerSubs) {
-      this.routerSubs.unsubscribe();
-    }
-
-    if (this.passwordSubs) {
-      this.passwordSubs.unsubscribe();
-    }
+    this.unsubscribe();
 
     this.selected = undefined;
+    this.searchText = '';
 
     this.routerSubs = this.route.queryParams.subscribe((params) => {
       let type = params['type'];
 
       this.passwordSubs = this.passwordState.getList$().subscribe((result) => {
-        // let list = result.map((vaults) => {
-        //   const $key = vaults.payload.key;
-        //   const data = { id: $key, ...(vaults.payload.val() as object) };
-        //   return data;
-        // }) as Password[];
-
         let list = result as Password[];
 
         this.isLoading = false;
@@ -125,13 +120,8 @@ export class PasswordViewComponent implements OnInit {
       });
     });
   }
-  ngOnInit(): void {}
 
-  ngOnDestroy(): void {
-    this.subs.forEach((sub) => {
-      sub.unsubscribe();
-    });
-
+  unsubscribe(): void {
     if (this.routerSubs) {
       this.routerSubs.unsubscribe();
     }
@@ -141,8 +131,45 @@ export class PasswordViewComponent implements OnInit {
     }
   }
 
+  ngOnInit(): void {}
+
+  ngAfterViewInit(): void {
+    this.observer.observe(['(max-width: 1080px)']).subscribe((res) => {
+      if (this.sidenav) {
+        this.sidenav.position = 'end';
+        if (res.matches) {
+          this.sidenav.mode = 'over';
+          this.sidenav.close();
+        } else {
+          this.sidenav.mode = 'side';
+          this.sidenav.open();
+        }
+      }
+    });
+  }
+  ngOnDestroy(): void {
+    this.subs.forEach((sub) => {
+      sub.unsubscribe();
+    });
+
+    this.unsubscribe();
+  }
+
   select(item: Password) {
     this.selected = item;
+    this.openSideNav()
+  }
+
+  openSideNav(): void{
+    if(this.sidenav){
+      this.sidenav.open()
+    }
+  }
+
+  closeSideNav(): void{
+    if(this.sidenav){
+      this.sidenav.close()
+    }
   }
 
   openDialog(): void {
@@ -164,11 +191,11 @@ export class PasswordViewComponent implements OnInit {
         pwd.bankPin = this.crypt.encryptData(pwd.bankPin);
         pwd.cvc = this.crypt.encryptData(pwd.cvc);
         if (typeof pwd.id !== 'undefined') {
-          pwd.updatedDate = (new Date()).toString();
+          pwd.updatedDate = new Date().toString();
           this.passwordState.update(pwd, pwd.id);
         } else {
-          pwd.createdDate = (new Date()).toString();
-          pwd.updatedDate = (new Date()).toString();
+          pwd.createdDate = new Date().toString();
+          pwd.updatedDate = new Date().toString();
           pwd.uid = this.userState.object?.uid!;
           this.passwordState.add(pwd);
         }
@@ -237,16 +264,16 @@ export class PasswordViewComponent implements OnInit {
     this.passwordState.update(this.selected!, this.selected!.id!);
 
     if (this.selected!.favourite) {
-      this.toastService.showToast('Added to favourites', '');
+      this.toastService.showToast('Added to favourites', 'Close');
     } else {
-      this.toastService.showToast('Removed from favourites', '');
+      this.toastService.showToast('Removed from favourites', 'Close');
     }
   }
 
   copyToClipBoard(value: string | undefined): void {
     if (typeof value !== 'undefined') {
       this.clipboardApi.copyFromContent(this.crypt.decryptData(value));
-      this.toastService.showToast('Copied Value', '');
+      this.toastService.showToast('Copied Value', 'Close');
     }
   }
 
@@ -258,7 +285,7 @@ export class PasswordViewComponent implements OnInit {
     bankAccount += `Branch : ${this.selected!.bankBranch} \n`;
 
     this.clipboardApi.copyFromContent(bankAccount);
-    this.toastService.showToast('Bank Account Details', '');
+    this.toastService.showToast('Bank Account Details Copied', 'Close');
   }
 }
 

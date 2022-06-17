@@ -33,7 +33,6 @@ export class LoginComponent implements OnInit {
         let error = this.formatError(err);
         this.toast.showToast(error, '');
         this.isLoading = false;
-        console.log('Something went wrong:', err);
       });
     this.auth.SignUp(this.user, this.newPassword);
   }
@@ -46,13 +45,12 @@ export class LoginComponent implements OnInit {
         let error = this.formatError(err);
         this.toast.showToast(error, '');
         this.isLoading = false;
-        console.log('Something went wrong:', err);
       });
   }
 
   formatError(err: string): string{
     let error = err.replace('Firebase:','');
     error = error.substring(0, error.indexOf('(auth'));
-    return error
+    return error;
   }
 }

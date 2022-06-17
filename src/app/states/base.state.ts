@@ -1,10 +1,11 @@
 import { AngularFireDatabase } from '@angular/fire/compat/database';
-import { BehaviorSubject, first, Subscription } from 'rxjs';
+import { BehaviorSubject, first, map, Observable, Subscription } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export class BaseState<Type> {
   entity = '';
   constructor(protected db: AngularFireDatabase, entity: string) {
-    this.entity = entity;
+    this.entity = environment.endpoint + entity;
   }
 
   add(value: Type): void {
@@ -93,7 +94,7 @@ export class BaseStateList<Type> extends BaseState<Type> {
     return this.list.getValue() as Type[];
   }
 
-  getList$() {
-    return this.list.asObservable();
+  getList$(): Observable<Type[]> {
+    return this.list.asObservable() as Observable<Type[]>;
   }
 }
