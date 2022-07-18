@@ -12,6 +12,7 @@ import { MenuComponent } from './ui-elements/menu/menu.component';
 import { SharedModule } from './shared/shared.module';
 import { ConsoleComponent } from './components/console/console.component';
 import { LoginModule } from './components/login/login.module';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,13 @@ import { LoginModule } from './components/login/login.module';
     AngularFireDatabaseModule,
     BrowserAnimationsModule,
     SharedModule,
-    LoginModule
+    LoginModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ],
   providers: [AuthGuard, LoginAuthGuard],
   bootstrap: [AppComponent]

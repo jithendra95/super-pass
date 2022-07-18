@@ -1,8 +1,7 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSidenav } from '@angular/material/sidenav';
-import { Observable } from 'rxjs';
+import { MatDrawerMode, MatSidenav } from '@angular/material/sidenav';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
@@ -17,7 +16,8 @@ export class MenuComponent implements OnInit {
 
   @Input()
   menuItems:any;
-  
+  sideNaveMode: MatDrawerMode = 'side';
+
   constructor(
     private observer: BreakpointObserver,
     private dialog: MatDialog,
@@ -28,16 +28,21 @@ export class MenuComponent implements OnInit {
 
   ngAfterViewInit() {
     this.observer.observe(['(max-width: 1080px)']).subscribe((res) => {
-      if (this.sidenav) {
+      setTimeout(() => {
+        if (this.sidenav) {
         if (res.matches) {
-          this.sidenav.mode = 'over';
+          this.sideNaveMode = 'over';
           this.sidenav.close();
         } else {
-          this.sidenav.mode = 'side';
+          this.sideNaveMode = 'side';
           this.sidenav.open();
         }
-      }
+      }}, 2000)
     });
+  }
+
+  getMenuParams(params: string): object{
+    return (params !== '')?({ type: params }): ({});
   }
 
   logout() {

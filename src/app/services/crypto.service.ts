@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
 import { AES, enc } from 'crypto-js';
-import { UserState } from '../states/user.state';
+import { UserController } from '../controller/user.controller';
+
 @Injectable({
   providedIn: 'root',
 })
 export class CryptoService {
-  constructor(private userState: UserState) {}
+  constructor(private userCtrl: UserController) {}
 
   encryptData(data: string | undefined): string {
     if (typeof data === 'undefined' || data == '') {
       return '';
     }
     try {
-      return AES.encrypt(data, this.userState.object?.secret!).toString();
+      return AES.encrypt(data, this.userCtrl.getUser()?.secret!).toString();
     } catch (e) {
       return '';
     }
@@ -24,7 +25,7 @@ export class CryptoService {
     }
 
     try {
-      const bytes = AES.decrypt(data, this.userState.object?.secret!);
+      const bytes = AES.decrypt(data, this.userCtrl.getUser()?.secret!);
       if (bytes.toString()) {
         let pass = bytes.toString(enc.Utf8);
         return pass;

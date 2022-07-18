@@ -5,18 +5,17 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { MatSidenav } from '@angular/material/sidenav';
+import {
+  MatDrawer,
+  MatDrawerMode,
+  MatSidenav,
+} from '@angular/material/sidenav';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { ClipboardService } from 'ngx-clipboard';
-import { Subscription } from 'rxjs';
+import { delay, Observable, Subscription } from 'rxjs';
+import { PasswordController } from 'src/app/controller/password.controller';
+import { VaultController } from 'src/app/controller/vault.controller';
 import { Password, PasswordType } from 'src/app/models/password.interface';
 import { Vault } from 'src/app/models/vault.interface';
-import { CryptoService } from 'src/app/services/crypto.service';
-import { ToastService } from 'src/app/services/toast.service';
-import { PasswordState } from 'src/app/states/password.state';
-import { UserState } from 'src/app/states/user.state';
-import { VaultState } from 'src/app/states/vault.state';
-import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-password-view',
@@ -24,44 +23,33 @@ import { ConfirmDialogComponent } from 'src/app/ui-elements/confirm-dialog/confi
   styleUrls: ['./password-view.component.scss'],
 })
 export class PasswordViewComponent implements OnInit {
-  selected?: Password;
+  //selected?: Password;
   passwordType = PasswordType;
-  pass: Password;
 
-  passwordList: Password[] = [];
+  passwords$?: Observable<Password[]>;
   allValues: Password[] = [];
   searchText = '';
   subs: Subscription[] = [];
 
   routerSubs?: Subscription;
-  passwordSubs?: Subscription;
+  selectedSub?: Subscription;
 
+  selected?: Password;
   isLoading = true;
 
+  sideNaveMode: MatDrawerMode = 'side';
+  sideNavePosition: 'start' | 'end' = 'end';
   @ViewChild(MatSidenav)
   sidenav?: MatSidenav;
 
   constructor(
     public dialog: MatDialog,
-    public passwordState: PasswordState,
-    public vaultState: VaultState,
-    public userState: UserState,
-    private clipboardApi: ClipboardService,
-    private toastService: ToastService,
-    private crypt: CryptoService,
+    public passwordCtrl: PasswordController,
+    public vaultCtrl: VaultController,
     private route: ActivatedRoute,
     private router: Router,
-    private observer: BreakpointObserver,
+    private observer: BreakpointObserver
   ) {
-    this.pass = {
-      name: '',
-      uid: '',
-      username: '',
-      password: '',
-      vault: '',
-      type: PasswordType.Account,
-    };
-
     this.subs.push(
       this.router.events.subscribe((e: any) => {
         // If it is a NavigationEnd event re-initalise the component
@@ -75,78 +63,45 @@ export class PasswordViewComponent implements OnInit {
   initialize(): void {
     this.unsubscribe();
 
-    this.selected = undefined;
+    //this.selected = undefined;
     this.searchText = '';
 
     this.routerSubs = this.route.queryParams.subscribe((params) => {
       let type = params['type'];
-
-      this.passwordSubs = this.passwordState.getList$().subscribe((result) => {
-        let list = result as Password[];
-
-        this.isLoading = false;
-        if (typeof list !== undefined && list.length > 0) {
-          this.allValues = list;
-          switch (type) {
-            case 'favourite':
-              this.passwordList = list.filter((password) => {
-                return password.favourite == true;
-              });
-              break;
-            case 'account':
-              this.passwordList = list.filter((password) => {
-                return password.type == PasswordType.Account;
-              });
-              break;
-            case 'credit':
-              this.passwordList = list.filter((password) => {
-                return password.type == PasswordType.CreditCard;
-              });
-              break;
-            case 'bank':
-              this.passwordList = list.filter((password) => {
-                return password.type == PasswordType.Bank;
-              });
-              break;
-            default:
-              this.passwordList = list;
-          }
-
-          if (this.selected === undefined && this.passwordList.length > 0)
-            this.selected = this.passwordList[0];
-        } else {
-          this.passwordList = [];
-        }
-      });
+      this.passwords$ = this.passwordCtrl.getPasswords$(type);
+      this.isLoading = false;
     });
+
+    this.selectedSub = this.passwordCtrl
+      .getPassword$()
+      .subscribe((password) => {
+        this.selected = password;
+      });
   }
 
   unsubscribe(): void {
-    if (this.routerSubs) {
-      this.routerSubs.unsubscribe();
-    }
-
-    if (this.passwordSubs) {
-      this.passwordSubs.unsubscribe();
-    }
+    this.routerSubs?.unsubscribe();
+    this.selectedSub?.unsubscribe();
   }
 
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.observer.observe(['(max-width: 1080px)']).subscribe((res) => {
-      if (this.sidenav) {
-        this.sidenav.position = 'end';
-        if (res.matches) {
-          this.sidenav.mode = 'over';
-          this.sidenav.close();
-        } else {
-          this.sidenav.mode = 'side';
-          this.sidenav.open();
+      setTimeout(() => {
+        if (this.sidenav) {
+          if (res.matches) {
+            this.sideNaveMode = 'over';
+            this.sidenav.close();
+          } else {
+            this.sideNaveMode = 'side';
+            this.sidenav.open();
+          }
         }
-      }
+      }, 2000);
     });
   }
+
   ngOnDestroy(): void {
     this.subs.forEach((sub) => {
       sub.unsubscribe();
@@ -156,136 +111,56 @@ export class PasswordViewComponent implements OnInit {
   }
 
   select(item: Password) {
-    this.selected = item;
-    this.openSideNav()
+    this.passwordCtrl.selectPassword(item);
+    this.openSideNav();
   }
 
-  openSideNav(): void{
-    if(this.sidenav){
-      this.sidenav.open()
+  openSideNav(): void {
+    if (this.sidenav) {
+      this.sidenav.open();
     }
   }
 
-  closeSideNav(): void{
-    if(this.sidenav){
-      this.sidenav.close()
+  closeSideNav(): void {
+    if (this.sidenav) {
+      this.sidenav.close();
     }
   }
 
-  openDialog(): void {
-    this.pass.password = this.crypt.decryptData(this.pass.password);
-    this.pass.bankPin = this.crypt.decryptData(this.pass.bankPin);
-    this.pass.cvc = this.crypt.decryptData(this.pass.cvc);
-
-    const dialogRef = this.dialog.open(PasswordCreateDialog, {
-      width: '750px',
-      panelClass: 'dialog',
-      data: { password: this.pass, vaults: this.vaultState.getList() },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (typeof result !== 'undefined') {
-        const pwd = result as Password;
-
-        pwd.password = this.crypt.encryptData(pwd.password);
-        pwd.bankPin = this.crypt.encryptData(pwd.bankPin);
-        pwd.cvc = this.crypt.encryptData(pwd.cvc);
-        if (typeof pwd.id !== 'undefined') {
-          pwd.updatedDate = new Date().toString();
-          this.passwordState.update(pwd, pwd.id);
-        } else {
-          pwd.createdDate = new Date().toString();
-          pwd.updatedDate = new Date().toString();
-          pwd.uid = this.userState.object?.uid!;
-          this.passwordState.add(pwd);
-        }
-        this.pass = {
-          name: '',
-          uid: this.userState.object?.uid!,
-          username: '',
-          password: '',
-          vault: '',
-          type: PasswordType.Account,
-        };
-      }
-    });
+  add(): void {
+    this.passwordCtrl.create();
   }
 
   edit() {
-    this.pass = this.selected!;
-    this.openDialog();
+    // this.pass = this.selected!;
+    // this.openDialog();
+    this.passwordCtrl.edit();
   }
 
   delete() {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '450px',
-      data: {
-        title: 'Delete Password',
-        message: `Are you sure you want to delete password ${
-          this.selected!.name
-        } ?`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        let id = this.selected!.id!;
-        this.selected = undefined;
-        this.passwordState.delete(id);
-      }
-    });
+    this.passwordCtrl.delete();
   }
 
   search(): void {
-    if (this.searchText !== '') {
-      this.passwordList = this.passwordList.filter((password) => {
-        return password.name
-          .toLocaleLowerCase()
-          .includes(this.searchText.toLocaleLowerCase());
-      });
-      this.selected = this.passwordList[0];
-    } else {
-      this.reloadPasswordList();
-    }
+    this.passwords$ = this.passwordCtrl.search(this.searchText);
   }
 
   changeSearch(): void {
     if (this.searchText == '') {
-      this.reloadPasswordList();
+      this.passwords$ = this.passwordCtrl.search(this.searchText);
     }
-  }
-
-  reloadPasswordList(): void {
-    this.passwordList = this.allValues;
   }
 
   favourite(): void {
-    this.selected!.favourite = !this.selected!.favourite;
-    this.passwordState.update(this.selected!, this.selected!.id!);
-
-    if (this.selected!.favourite) {
-      this.toastService.showToast('Added to favourites', 'Close');
-    } else {
-      this.toastService.showToast('Removed from favourites', 'Close');
-    }
+    this.passwordCtrl.favourite();
   }
 
   copyToClipBoard(value: string | undefined): void {
-    if (typeof value !== 'undefined') {
-      this.clipboardApi.copyFromContent(this.crypt.decryptData(value));
-      this.toastService.showToast('Copied Value', 'Close');
-    }
+    this.passwordCtrl.copyToClipBoard(value);
   }
 
   copyAccount(): void {
-    let bankAccount = '';
-    bankAccount += `${this.selected!.name} \n`;
-    bankAccount += `Account No: ${this.selected!.bankAccountNo} \n`;
-    bankAccount += `Name : ${this.selected!.username} \n`;
-    bankAccount += `Branch : ${this.selected!.bankBranch} \n`;
-
-    this.clipboardApi.copyFromContent(bankAccount);
-    this.toastService.showToast('Bank Account Details Copied', 'Close');
+    this.passwordCtrl.copyAccount();
   }
 }
 

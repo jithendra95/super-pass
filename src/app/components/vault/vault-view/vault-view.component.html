@@ -1,11 +1,11 @@
 <div class="vault-container">
-  <mat-card class="card" (click)='openDialog()'>
+  <mat-card class="card" (click)='add()'>
     <mat-card-content class='add-card'>
         <mat-icon >add</mat-icon>
     </mat-card-content>
   </mat-card>
 
-  <mat-card class="card" *ngFor="let item of vaultState.getList$() | async; let i = index">
+  <mat-card class="card" *ngFor="let item of vaultCtrl.getVaults$() | async; let i = index">
     <mat-card-title>{{item.name}}</mat-card-title>
     <mat-card-subtitle>{{item.subTitle}}</mat-card-subtitle>
     <mat-card-content>

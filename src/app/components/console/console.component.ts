@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from 'src/app/services/authentication.service';
+import { LoaderService } from 'src/app/services/loader.service';
 
 @Component({
   selector: 'app-console',
@@ -46,9 +47,12 @@ export class ConsoleComponent implements OnInit {
     },
     { icon: 'help', label: 'Help', link: '/password', param: 'all' },
   ];
-  constructor(private auth: AuthenticationService) { 
+  constructor(private auth: AuthenticationService, private loader: LoaderService) { 
     this.auth.isLoggedIn$().subscribe((res) => {
       this.isLoggedIn = res !== null;
+      if(res !== null)
+        this.loader.load(res.uid);
+        
       this.isLoading = false;
     })
   }

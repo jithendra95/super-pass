@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { first, Observable } from 'rxjs';
+import { UserController } from '../controller/user.controller';
 import { User } from '../models/user.interface';
-import { UserState } from '../states/user.state';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +12,7 @@ export class AuthenticationService {
   userData: Observable<any> | null;
   constructor(
     private angularFireAuth: AngularFireAuth,
-    private userState: UserState,
+    private userCtrl: UserController,
     private _router: Router
   ) {
     this.userData = angularFireAuth.authState;
@@ -27,8 +27,7 @@ export class AuthenticationService {
         .then((res) => {
           if (res.user) user.uid = res.user.uid;
 
-          user.secret = new Date().valueOf().toString(36) + Math.random().toString(36).substr(2);
-          thisInst.userState.addWithId(user.uid, user);
+          thisInst.userCtrl.createUser(user.uid, user);
           thisInst._router.navigate(['/']);
         })
         .catch((err) => {
@@ -44,8 +43,6 @@ export class AuthenticationService {
       thisInst.angularFireAuth
         .signInWithEmailAndPassword(email, password)
         .then((res) => {
-          if (res.user) thisInst.userState.read(res.user.uid);
-
           thisInst._router.navigate(['/']);
           resolve('');
         })
@@ -56,27 +53,16 @@ export class AuthenticationService {
   }
 
   isLoggedIn() {
-    this.angularFireAuth.authState.subscribe((user) => {
-      if (user != null && this.userState.object == null) {
-        this.userState.read(user.uid);
-      }
-    });
     return this.angularFireAuth.authState.pipe(first()).toPromise();
   }
 
   isLoggedIn$() {
-    this.angularFireAuth.authState.subscribe((user) => {
-      if (user != null && this.userState.object == null) {
-        this.userState.read(user.uid);
-      }
-    });
-
     return this.angularFireAuth.authState;
   }
 
   /* Sign out */
   async SignOut() {
-    this.userState.unload();
+    // this.userState.unload();
     this.userData = null;
     await this.angularFireAuth.signOut();
     this._router.navigate(['/login']);

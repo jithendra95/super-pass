@@ -16,13 +16,13 @@
 </mat-toolbar>
 
 <mat-sidenav-container>
-  <mat-sidenav #sidenav="matSidenav">
+  <mat-sidenav #sidenav="matSidenav" [mode]="sideNaveMode">
     <div *ngFor="let menu of menuItems">
       <button
         mat-button
         class="menu-button"
         routerLink="{{ menu.link }}"
-        [queryParams]="{ type: menu.param }"
+        [queryParams]="getMenuParams(menu.param)"
         (click)="sidenav.mode === 'over'? sidenav?.toggle() : '' "
         routerLinkActive="active"
         *ngIf="!menu.sublist"
