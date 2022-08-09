@@ -8,24 +8,24 @@ import { UserController } from '../controller/user.controller';
 export class CryptoService {
   constructor(private userCtrl: UserController) {}
 
-  encryptData(data: string | undefined): string {
+  encryptData(data: string | undefined, secret: string): string {
     if (typeof data === 'undefined' || data == '') {
       return '';
     }
     try {
-      return AES.encrypt(data, this.userCtrl.getUser()?.secret!).toString();
+      return AES.encrypt(data, secret).toString();
     } catch (e) {
       return '';
     }
   }
 
-  decryptData(data: string | undefined): string {
+  decryptData(data: string | undefined, secret: string): string {
     if (typeof data === 'undefined' || data == '') {
       return '';
     }
 
     try {
-      const bytes = AES.decrypt(data, this.userCtrl.getUser()?.secret!);
+      const bytes = AES.decrypt(data, secret);
       if (bytes.toString()) {
         let pass = bytes.toString(enc.Utf8);
         return pass;
