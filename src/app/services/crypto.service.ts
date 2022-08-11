@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { AES, enc } from 'crypto-js';
-import { UserController } from '../controller/user.controller';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CryptoService {
-  constructor(private userCtrl: UserController) {}
+  constructor() {}
 
   encryptData(data: string | undefined, secret: string): string {
     if (typeof data === 'undefined' || data == '') {
