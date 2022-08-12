@@ -1,4 +1,3 @@
-import { DebugElement } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
@@ -11,7 +10,6 @@ import { UserController } from '../user.controller';
 
 describe('UserController', () => {
     let controller: UserController;
-    let de: DebugElement;
     let stateStore: StateStore;
     let userApi: UserApi;
     beforeEach(() => {
@@ -19,21 +17,21 @@ describe('UserController', () => {
             imports: [
                 AngularFireModule.initializeApp(environment.firebaseConfig),
                 AngularFireDatabaseModule
-              ],
-            providers: [ UserController,  ]
-          });
-          
-          stateStore = TestBed.inject(StateStore);
-          userApi = TestBed.inject(UserApi);
-          controller = TestBed.inject(UserController);
+            ],
+            providers: [UserController,]
+        });
+
+        stateStore = TestBed.inject(StateStore);
+        userApi = TestBed.inject(UserApi);
+        controller = TestBed.inject(UserController);
     })
 
 
-    it("Should create",()=>{
+    it("Should create", () => {
         expect(controller).toBeDefined();
     })
 
-    it("Should load user and save in store", ()=>{
+    it("Should load user and set the state", () => {
 
         spyOn(stateStore, 'setState');
         spyOn(userApi, 'read').and.returnValue(of([new User()]));
@@ -43,10 +41,10 @@ describe('UserController', () => {
         expect(stateStore.setState).toHaveBeenCalled();
     })
 })
-  
-  
 
 
-  
+
+
+
 
 

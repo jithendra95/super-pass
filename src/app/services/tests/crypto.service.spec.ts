@@ -15,8 +15,18 @@ describe('CryptoService', () => {
     expect(encryptedValue).toBeDefined();
   })
 
-  it("Should be an empty string when data is not provided",()=>{
+  it("Should be an empty string when data is not provided for encryption",()=>{
     let encryptedValue = service.encryptData(undefined, "Secret");
+    expect(encryptedValue).toBe("");
+  })
+
+  it("Should decrypt data when provided",()=>{
+    let encryptedValue = service.decryptData("data", "Secret");
+    expect(encryptedValue).toBeDefined();
+  })
+
+  it("Should be an empty string when data is not provided for decryption",()=>{
+    let encryptedValue = service.decryptData(undefined, "Secret");
     expect(encryptedValue).toBe("");
   })
 });
