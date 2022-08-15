@@ -198,7 +198,7 @@ export class PasswordController {
 
   copyToClipBoard(value: string | undefined): void {
     if (typeof value !== 'undefined') {
-      this.clipboardApi.copyFromContent(this.crypt.decryptData(value, this.userCtrl.getUser()?.secret!));
+      this.clipboardApi.copyFromContent(this.crypt.decryptData(value, this.userCtrl.get()?.secret!));
       this.toastService.showToast('Copied Value', 'Close');
     }
   }
@@ -215,17 +215,17 @@ export class PasswordController {
   }
 
   private decryptData(password: Password): Password {
-    password.password = this.crypt.decryptData(password.password, this.userCtrl.getUser()?.secret!);
-    password.bankPin = this.crypt.decryptData(password.bankPin, this.userCtrl.getUser()?.secret!);
-    password.cvc = this.crypt.decryptData(password.cvc, this.userCtrl.getUser()?.secret!);
+    password.password = this.crypt.decryptData(password.password, this.userCtrl.get()?.secret!);
+    password.bankPin = this.crypt.decryptData(password.bankPin, this.userCtrl.get()?.secret!);
+    password.cvc = this.crypt.decryptData(password.cvc, this.userCtrl.get()?.secret!);
 
     return password;
   }
 
   private savePassword(pwd: Password): void {
-    pwd.password = this.crypt.encryptData(pwd.password, this.userCtrl.getUser()?.secret!);
-    pwd.bankPin = this.crypt.encryptData(pwd.bankPin, this.userCtrl.getUser()?.secret!);
-    pwd.cvc = this.crypt.encryptData(pwd.cvc, this.userCtrl.getUser()?.secret!);
+    pwd.password = this.crypt.encryptData(pwd.password, this.userCtrl.get()?.secret!);
+    pwd.bankPin = this.crypt.encryptData(pwd.bankPin, this.userCtrl.get()?.secret!);
+    pwd.cvc = this.crypt.encryptData(pwd.cvc, this.userCtrl.get()?.secret!);
     if (typeof pwd.id !== 'undefined') {
       pwd.updatedDate = new Date().toString();
       this.passwordApi.update(pwd, pwd.id);

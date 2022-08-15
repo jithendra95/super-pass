@@ -27,7 +27,7 @@ export class AuthenticationService {
         .then((res) => {
           if (res.user) user.uid = res.user.uid;
 
-          thisInst.userCtrl.createUser(user.uid, user);
+          thisInst.userCtrl.createWithId(user.uid, user);
           thisInst._router.navigate(['/']);
         })
         .catch((err) => {

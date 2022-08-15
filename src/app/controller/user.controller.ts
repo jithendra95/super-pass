@@ -3,43 +3,25 @@ import { Observable, Subscription } from 'rxjs';
 import { UserApi } from '../api/user.api';
 import { User } from '../models/user.interface';
 import { StateStore } from '../states/store.state';
+import { BaseController } from './base.controller';
 
 @Injectable({
   providedIn: 'root',
 })
-export class UserController {
-  subs: Subscription[] = [];
-  entity: string = 'user';
-  public uid: string | number = '';
-  constructor(private store: StateStore, private userApi: UserApi) {}
+export class UserController extends BaseController<User> {
 
-  load(uid: string | number): void {
-    this.uid = uid;
-    this.subs.push(
-      this.userApi.read(uid).subscribe((user) => {
-        this.store.setState(this.entity, user);
-      })
-    );
+  constructor(store: StateStore, userApi: UserApi) {
+    super(store, userApi, 'user');
   }
 
-  getUser$(): Observable<User> {
-    return this.store.getState$(this.entity) as Observable<User>;
+  get uid(): string {
+    return this.get()?.uid;
   }
 
-  getUser(): User{
-    return this.store.getState(this.entity) as User;
-  }
-  
-  createUser(uid: string, user: User) {
+  override createWithId(uid: string, user: User) {
     user.secret =
       new Date().valueOf().toString(36) + Math.random().toString(36).substr(2);
-    this.userApi.addWithId(uid, user);
-    this.store.setState(this.entity, user);
+    super.createWithId(uid, user);
   }
 
-  unload(): void {
-    this.subs.forEach((sub) => {
-      sub.unsubscribe();
-    });
-  }
 }
