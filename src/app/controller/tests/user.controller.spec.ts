@@ -6,6 +6,7 @@ import { UserApi } from 'src/app/api/user.api';
 import { User } from 'src/app/models/user.interface';
 import { StateStore } from 'src/app/states/store.state';
 import { environment } from 'src/environments/environment';
+import { BaseController } from '../base.controller';
 import { UserController } from '../user.controller';
 
 describe('UserController', () => {
@@ -39,6 +40,14 @@ describe('UserController', () => {
 
         expect(userApi.read).toHaveBeenCalled();
         expect(stateStore.setState).toHaveBeenCalled();
+    })
+
+    it("Should create secret key when creating new user", ()=>{
+        spyOn(Object.getPrototypeOf(Object.getPrototypeOf(controller)), "createWithId");
+        let user = new User();
+        controller.createWithId("someID", user);
+        expect(user.secret !== "").toBeTrue();
+        expect(BaseController.prototype.createWithId).toHaveBeenCalled();
     })
 })
 
