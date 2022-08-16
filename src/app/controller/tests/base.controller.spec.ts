@@ -39,6 +39,16 @@ describe('UserController', () => {
         expect(stateStore.setState).toHaveBeenCalled();
     })
 
+    it("Should load all values and set the state", () => {
+
+        spyOn(stateStore, 'setState');
+        spyOn(api, 'read').and.returnValue(of([new MockObject()]));
+        controller.loadAll('');
+
+        expect(api.readAll).toHaveBeenCalled();
+        expect(stateStore.setState).toHaveBeenCalled();
+    })
+
     it("Should return object from state", () => {
 
         let obj = new MockObject();

@@ -6,39 +6,25 @@ import { VaultCreateDialog } from '../components/vault/vault-view/vault-view.com
 import { Vault } from '../models/vault.interface';
 import { StateStore } from '../states/store.state';
 import { ConfirmDialogComponent } from '../ui-elements/confirm-dialog/confirm-dialog.component';
+import { BaseController } from './base.controller';
 import { UserController } from './user.controller';
 
 @Injectable({
   providedIn: 'root',
 })
-export class VaultController {
-  subs: Subscription[] = [];
-  entity: string = 'vault';
+export class VaultController extends BaseController<Vault>{
+
   constructor(
-    private store: StateStore,
+    store: StateStore,
     private vaultApi: VaultApi,
     private userCtrl: UserController,
     public dialog: MatDialog
-  ) {}
-
-  load(): void {
-    this.subs.push(
-      this.vaultApi.readAll(this.userCtrl.uid).subscribe((passwords) => {
-        this.store.setState(this.entity + '_list', passwords);
-      })
-    );
-  }
-
-  getVaults$(): Observable<Vault[]> {
-    return this.store.getState$(this.entity + '_list') as Observable<Vault[]>;
-  }
-
-  getVaults(): Vault[] {
-    return this.store.getState(this.entity + '_list') as Vault[];
+  ) {
+    super(store, vaultApi, 'vault');
   }
 
   findVault(id: string): Vault | undefined {
-    return this.getVaults().find((obj) => {
+    return this.getAll().find((obj) => {
       return obj['id'] == id;
     });
   }

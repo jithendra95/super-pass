@@ -17,8 +17,8 @@ export class LoaderService {
   load(uid: string | number): void {
     this.uid = uid;
     this.userCtrl.load(uid);
-    this.vaultCtrl.load();
-    this.passwordCtrl.load();
+    this.vaultCtrl.loadAll(uid);
+    this.passwordCtrl.loadAll(uid);
   }
 
   unload(): void {

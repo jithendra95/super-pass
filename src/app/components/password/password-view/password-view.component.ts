@@ -73,7 +73,7 @@ export class PasswordViewComponent implements OnInit {
     });
 
     this.selectedSub = this.passwordCtrl
-      .getPassword$()
+      .get$()
       .subscribe((password) => {
         this.selected = password;
       });
@@ -111,7 +111,7 @@ export class PasswordViewComponent implements OnInit {
   }
 
   select(item: Password) {
-    this.passwordCtrl.selectPassword(item);
+    this.passwordCtrl.set(item);
     this.openSideNav();
   }
 

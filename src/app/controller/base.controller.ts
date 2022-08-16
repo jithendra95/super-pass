@@ -22,6 +22,14 @@ export class BaseController<Type>{
         );
     }
 
+    public loadAll(uid: string | number): void {
+        this.subs.push(
+            this.api.readAll(uid).subscribe((values) => {
+                this.store.setState(this.entity + '_list', values);
+            })
+        );
+    }
+
     public get$(): Observable<Type> {
         return this.store.getState$(this.entity) as Observable<Type>;
     }
@@ -30,7 +38,20 @@ export class BaseController<Type>{
         return this.store.getState(this.entity) as Type;
     }
 
-    public createWithId(id: string, value: Type): void{
+    public getAll(): Type[] {
+        return this.store.getState(this.entity + '_list') as Type[];
+    }
+
+    public getAll$():Observable<Type[]> {
+        return this.store.getState$(this.entity + '_list') as Observable<Type[]>;
+    }
+    
+
+    public set(obj: Type): void {
+        this.store.setState(this.entity, obj);
+    }
+
+    public createWithId(id: string, value: Type): void {
         this.api.addWithId(id, value);
         this.store.setState(this.entity, value);
     }

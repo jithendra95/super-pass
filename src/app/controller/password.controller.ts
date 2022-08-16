@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ClipboardService } from 'ngx-clipboard';
-import { delay, filter, map, mergeScan, Observable, of, Subscription, switchMap } from 'rxjs';
+import { delay, map, Observable, of, switchMap } from 'rxjs';
 import { PasswordApi } from '../api/password.api';
 import { PasswordCreateDialog } from '../components/password/password-view/password-view.component';
 import { Password, PasswordType } from '../models/password.interface';
@@ -10,17 +10,17 @@ import { CryptoService } from '../services/crypto.service';
 import { ToastService } from '../services/toast.service';
 import { StateStore } from '../states/store.state';
 import { ConfirmDialogComponent } from '../ui-elements/confirm-dialog/confirm-dialog.component';
+import { BaseController } from './base.controller';
 import { UserController } from './user.controller';
 import { VaultController } from './vault.controller';
 
 @Injectable({
   providedIn: 'root',
 })
-export class PasswordController {
-  subs: Subscription[] = [];
-  entity: string = 'password';
+export class PasswordController extends BaseController<Password>{
+
   constructor(
-    private store: StateStore,
+    store: StateStore,
     private passwordApi: PasswordApi,
     private userCtrl: UserController,
     private vaultCtrl: VaultController,
@@ -28,15 +28,10 @@ export class PasswordController {
     private toastService: ToastService,
     private crypt: CryptoService,
     public dialog: MatDialog
-  ) {}
-
-  load(): void {
-    this.subs.push(
-      this.passwordApi.readAll(this.userCtrl.uid).subscribe((passwords) => {
-        this.store.setState(this.entity + '_list', passwords);
-      })
-    );
+  ) {
+    super(store, passwordApi, 'password');
   }
+
 
   getPasswords$(type: string): Observable<Password[]> {
     let passwords = this.store.getState$(this.entity + '_list');
@@ -128,16 +123,9 @@ export class PasswordController {
 
   /*****************SELECTED VALUE ACTIONS********************** */
   get password(): Password {
-    return this.store.getState(this.entity) as Password;
+    return super.get();
   }
 
-  getPassword$(): Observable<Password> {
-    return this.store.getState$(this.entity) as Observable<Password>;
-  }
-
-  selectPassword(password: Password): void {
-    this.store.setState(this.entity, password);
-  }
 
   create(): void{
     this.openDialog(new Password());
@@ -174,7 +162,7 @@ export class PasswordController {
     const dialogRef = this.dialog.open(PasswordCreateDialog, {
       width: '750px',
       panelClass: 'dialog',
-      data: { password: password, vaults: this.vaultCtrl.getVaults() },
+      data: { password: password, vaults: this.vaultCtrl.getAll() },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
