@@ -12,7 +12,7 @@ import { UserController } from '../user.controller';
 describe('UserController', () => {
     let controller: UserController;
     let stateStore: StateStore;
-    let userApi: UserApi;
+    let api: UserApi;
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [
@@ -23,7 +23,7 @@ describe('UserController', () => {
         });
 
         stateStore = TestBed.inject(StateStore);
-        userApi = TestBed.inject(UserApi);
+        api = TestBed.inject(UserApi);
         controller = TestBed.inject(UserController);
     })
 
@@ -34,12 +34,14 @@ describe('UserController', () => {
 
     it("Should load user and set the state", () => {
 
-        spyOn(Object.getPrototypeOf(stateStore), 'setState');
-        spyOn(Object.getPrototypeOf(userApi), 'read').and.returnValue(of([new User()]));
+        spyOn(stateStore, 'setState');
+        spyOn(Object.getPrototypeOf(api), 'read').and.returnValue(of([new User()]));
+
+
         controller.load('');
 
-        expect(Object.getPrototypeOf(userApi).read).toHaveBeenCalled();
-        expect(Object.getPrototypeOf(stateStore).setState).toHaveBeenCalled();
+        expect(UserApi.prototype.read).toHaveBeenCalled();
+        expect(stateStore.setState).toHaveBeenCalled();
     })
 
     it("Should create secret key when creating new user", ()=>{

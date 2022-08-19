@@ -206,7 +206,7 @@ export class PasswordController extends BaseController<Password>{
     return password;
   }
 
-  private savePassword(pwd: Password): void {
+  public savePassword(pwd: Password): void {
     pwd.password = this.crypt.encryptData(pwd.password, this.userCtrl.get()?.secret!);
     pwd.bankPin = this.crypt.encryptData(pwd.bankPin, this.userCtrl.get()?.secret!);
     pwd.cvc = this.crypt.encryptData(pwd.cvc, this.userCtrl.get()?.secret!);

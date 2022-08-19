@@ -6,7 +6,7 @@ import { StateStore } from 'src/app/states/store.state';
 import { environment } from 'src/environments/environment';
 import { MockApi, MockController, MockObject } from './mock.data';
 
-describe('UserController', () => {
+describe('BaseController', () => {
     let controller: MockController;
     let stateStore: StateStore;
     let api: MockApi;
@@ -42,7 +42,7 @@ describe('UserController', () => {
     it("Should load all values and set the state", () => {
 
         spyOn(stateStore, 'setState');
-        spyOn(api, 'read').and.returnValue(of([new MockObject()]));
+        spyOn(api, 'readAll').and.returnValue(of([new MockObject()]));
         controller.loadAll('');
 
         expect(api.readAll).toHaveBeenCalled();

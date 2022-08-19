@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Observable, Subscription } from 'rxjs';
 import { VaultApi } from '../api/vault.api';
 import { VaultCreateDialog } from '../components/vault/vault-view/vault-view.component';
 import { Vault } from '../models/vault.interface';
