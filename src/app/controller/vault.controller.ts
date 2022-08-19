@@ -23,17 +23,14 @@ export class VaultController extends BaseController<Vault>{
     super(store, vaultApi, 'vault');
   }
 
-  findVault(id: string): Vault | undefined {
+  public findVault(id: string): Vault | undefined {
     return this.getAll().find((obj) => {
       return obj['id'] == id;
     });
   }
 
-  getSelectedVault$(): Observable<Vault> {
-    return this.store.getState$(this.entity) as Observable<Vault>;
-  }
 
-  delete(vault: Vault) {
+  public delete(vault: Vault) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '450px',
       data: {
@@ -49,11 +46,11 @@ export class VaultController extends BaseController<Vault>{
     });
   }
 
-  create(): void {
+  public create(): void {
     this.openDialog(new Vault());
   }
 
-  edit(vault: Vault): void {
+  public edit(vault: Vault): void {
     this.openDialog(vault);
   }
 
@@ -70,7 +67,7 @@ export class VaultController extends BaseController<Vault>{
     });
   }
 
-  private saveVault(vault: Vault): void {
+  public saveVault(vault: Vault): void {
     if (typeof vault.id !== 'undefined') {
       this.vaultApi.update(vault, vault.id);
     } else {

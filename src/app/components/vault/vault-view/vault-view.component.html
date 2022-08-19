@@ -5,7 +5,7 @@
     </mat-card-content>
   </mat-card>
 
-  <mat-card class="card" *ngFor="let item of vaultCtrl.getVaults$() | async; let i = index">
+  <mat-card class="card" *ngFor="let item of vaultCtrl.getAll$() | async; let i = index">
     <mat-card-title>{{item.name}}</mat-card-title>
     <mat-card-subtitle>{{item.subTitle}}</mat-card-subtitle>
     <mat-card-content>

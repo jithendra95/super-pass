@@ -23,7 +23,6 @@ import { Vault } from 'src/app/models/vault.interface';
   styleUrls: ['./password-view.component.scss'],
 })
 export class PasswordViewComponent implements OnInit {
-  //selected?: Password;
   passwordType = PasswordType;
 
   passwords$?: Observable<Password[]>;
@@ -62,8 +61,6 @@ export class PasswordViewComponent implements OnInit {
 
   initialize(): void {
     this.unsubscribe();
-
-    //this.selected = undefined;
     this.searchText = '';
 
     this.routerSubs = this.route.queryParams.subscribe((params) => {
@@ -132,8 +129,6 @@ export class PasswordViewComponent implements OnInit {
   }
 
   edit() {
-    // this.pass = this.selected!;
-    // this.openDialog();
     this.passwordCtrl.edit();
   }
 

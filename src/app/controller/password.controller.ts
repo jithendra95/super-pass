@@ -48,10 +48,6 @@ export class PasswordController extends BaseController<Password>{
     return of([]);
   }
 
-  getSelectedPassword$(): Observable<Password> {
-    return this.store.getState$(this.entity) as Observable<Password>;
-  }
-
   search(searchText: string): Observable<Password[]> {
     let passwords = this.store.getState$(this.entity + '_list');
     if (passwords !== null) {

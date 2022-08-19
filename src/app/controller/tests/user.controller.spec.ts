@@ -34,12 +34,12 @@ describe('UserController', () => {
 
     it("Should load user and set the state", () => {
 
-        spyOn(stateStore, 'setState');
-        spyOn(userApi, 'read').and.returnValue(of([new User()]));
+        spyOn(Object.getPrototypeOf(stateStore), 'setState');
+        spyOn(Object.getPrototypeOf(userApi), 'read').and.returnValue(of([new User()]));
         controller.load('');
 
-        expect(userApi.read).toHaveBeenCalled();
-        expect(stateStore.setState).toHaveBeenCalled();
+        expect(Object.getPrototypeOf(userApi).read).toHaveBeenCalled();
+        expect(Object.getPrototypeOf(stateStore).setState).toHaveBeenCalled();
     })
 
     it("Should create secret key when creating new user", ()=>{
